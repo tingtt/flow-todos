@@ -276,14 +276,12 @@ func GetList(user_id uint64, with_completed bool) (projects []Todo, err error) {
 			projectId     sql.NullInt64
 			completed     bool
 		)
-		t := Todo{}
 		err = rows.Scan(&id, &name, &description, &date, &time, &executionTime, &termId, &projectId, &completed)
 		if err != nil {
 			return
 		}
 
-		t.Id = id
-		t.Name = name
+		t := Todo{Id: id, Name: name, Completed: completed}
 		if description.Valid {
 			t.Description = &description.String
 		}
@@ -305,7 +303,6 @@ func GetList(user_id uint64, with_completed bool) (projects []Todo, err error) {
 			projectIdTmp := uint64(projectId.Int64)
 			t.ProjectId = &projectIdTmp
 		}
-		t.Completed = completed
 
 		projects = append(projects, t)
 	}
