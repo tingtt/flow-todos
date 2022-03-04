@@ -8,12 +8,12 @@ import (
 type Todo struct {
 	Id            uint64
 	Name          string  `json:"name"`
-	Description   *string `json:"description"`
-	Date          *string `json:"date"`
-	Time          *string `json:"time"`
-	ExecutionTime *uint   `json:"execution_time"`
-	TermId        *uint64 `json:"term_id"`
-	ProjectId     *uint64 `json:"project_id"`
+	Description   *string `json:"description,omitempty"`
+	Date          *string `json:"date,omitempty"`
+	Time          *string `json:"time,omitempty"`
+	ExecutionTime *uint   `json:"execution_time,omitempty"`
+	TermId        *uint64 `json:"term_id,omitempty"`
+	ProjectId     *uint64 `json:"project_id,omitempty"`
 	Completed     bool    `json:"completed"`
 }
 
