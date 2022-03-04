@@ -241,7 +241,7 @@ func Delete(user_id uint64, id uint64) (notFound bool, err error) {
 	return false, nil
 }
 
-func GetList(user_id uint64, with_completed bool) (projects []Todo, err error) {
+func GetList(user_id uint64, withCompleted bool) (projects []Todo, err error) {
 	db, err := mysql.Open()
 	if err != nil {
 		return
@@ -249,7 +249,7 @@ func GetList(user_id uint64, with_completed bool) (projects []Todo, err error) {
 	defer db.Close()
 
 	queryStr := "SELECT id, name, description, date, time, execution_time, term_id, project_id, completed FROM todos WHERE user_id = ?"
-	if !with_completed {
+	if !withCompleted {
 		queryStr += " AND completed = false"
 	}
 	stmtOut, err := db.Prepare(queryStr)
