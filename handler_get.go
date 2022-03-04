@@ -17,7 +17,7 @@ type QueryParam struct {
 func get(c echo.Context) error {
 	// Check token
 	u := c.Get("user").(*jwtGo.Token)
-	user_id, err := jwt.CheckToken(*jwtIssuer, u)
+	userId, err := jwt.CheckToken(*jwtIssuer, u)
 	if err != nil {
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusNotFound, map[string]string{"message": err.Error()}, "	")
@@ -39,7 +39,7 @@ func get(c echo.Context) error {
 	}
 
 	// Get projects
-	projects, err := todo.GetList(user_id, q.WithCompleted, q.ProjectId)
+	projects, err := todo.GetList(userId, q.WithCompleted, q.ProjectId)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)

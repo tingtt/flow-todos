@@ -19,7 +19,7 @@ func post(c echo.Context) error {
 
 	// Check token
 	u := c.Get("user").(*jwtGo.Token)
-	user_id, err := jwt.CheckToken(*jwtIssuer, u)
+	userId, err := jwt.CheckToken(*jwtIssuer, u)
 	if err != nil {
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusNotFound, map[string]string{"message": err.Error()}, "	")
@@ -44,7 +44,7 @@ func post(c echo.Context) error {
 
 	// TODO: Check project id
 
-	p, err := todo.Insert(user_id, *post)
+	p, err := todo.Insert(userId, *post)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)

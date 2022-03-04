@@ -39,7 +39,7 @@ type Patch struct {
 	Completed     *bool   `json:"completed" validate:"omitempty"`
 }
 
-func Get(user_id uint64, id uint64) (t Todo, notFound bool, err error) {
+func Get(userId uint64, id uint64) (t Todo, notFound bool, err error) {
 	db, err := mysql.Open()
 	if err != nil {
 		return Todo{}, false, err
@@ -52,7 +52,7 @@ func Get(user_id uint64, id uint64) (t Todo, notFound bool, err error) {
 	}
 	defer stmtOut.Close()
 
-	rows, err := stmtOut.Query(user_id, id)
+	rows, err := stmtOut.Query(userId, id)
 	if err != nil {
 		return Todo{}, false, err
 	}
@@ -105,7 +105,7 @@ func Get(user_id uint64, id uint64) (t Todo, notFound bool, err error) {
 	return
 }
 
-func Insert(user_id uint64, post Post) (p Todo, err error) {
+func Insert(userId uint64, post Post) (p Todo, err error) {
 	// Set defualt value
 	if post.Completed == nil {
 		completed := false
@@ -123,7 +123,7 @@ func Insert(user_id uint64, post Post) (p Todo, err error) {
 		return Todo{}, err
 	}
 	defer stmtIns.Close()
-	result, err := stmtIns.Exec(user_id, post.Name, post.Description, post.Date, post.Time, post.ExecutionTime, post.TermId, post.ProjectId, post.Completed)
+	result, err := stmtIns.Exec(userId, post.Name, post.Description, post.Date, post.Time, post.ExecutionTime, post.TermId, post.ProjectId, post.Completed)
 	if err != nil {
 		return Todo{}, err
 	}
@@ -159,9 +159,9 @@ func Insert(user_id uint64, post Post) (p Todo, err error) {
 	return
 }
 
-func Update(user_id uint64, id uint64, new Patch) (_ Todo, notFound bool, err error) {
+func Update(userId uint64, id uint64, new Patch) (_ Todo, notFound bool, err error) {
 	// Get old
-	old, notFound, err := Get(user_id, id)
+	old, notFound, err := Get(userId, id)
 	if err != nil {
 		return Todo{}, false, err
 	}
@@ -206,7 +206,7 @@ func Update(user_id uint64, id uint64, new Patch) (_ Todo, notFound bool, err er
 		return Todo{}, false, err
 	}
 	defer stmtIns.Close()
-	_, err = stmtIns.Exec(new.Name, new.Description, new.Date, new.Time, new.ExecutionTime, new.TermId, new.ProjectId, new.Completed, user_id, id)
+	_, err = stmtIns.Exec(new.Name, new.Description, new.Date, new.Time, new.ExecutionTime, new.TermId, new.ProjectId, new.Completed, userId, id)
 	if err != nil {
 		return Todo{}, false, err
 	}
@@ -214,7 +214,7 @@ func Update(user_id uint64, id uint64, new Patch) (_ Todo, notFound bool, err er
 	return Todo{id, *new.Name, new.Description, new.Date, new.Time, new.ExecutionTime, new.TermId, new.ProjectId, *new.Completed}, false, nil
 }
 
-func Delete(user_id uint64, id uint64) (notFound bool, err error) {
+func Delete(userId uint64, id uint64) (notFound bool, err error) {
 	db, err := mysql.Open()
 	if err != nil {
 		return false, err
@@ -225,7 +225,7 @@ func Delete(user_id uint64, id uint64) (notFound bool, err error) {
 		return false, err
 	}
 	defer stmtIns.Close()
-	result, err := stmtIns.Exec(user_id, id)
+	result, err := stmtIns.Exec(userId, id)
 	if err != nil {
 		return false, err
 	}
@@ -241,7 +241,7 @@ func Delete(user_id uint64, id uint64) (notFound bool, err error) {
 	return false, nil
 }
 
-func GetList(user_id uint64, withCompleted bool, projectId *uint64) (projects []Todo, err error) {
+func GetList(userId uint64, withCompleted bool, projectId *uint64) (projects []Todo, err error) {
 	db, err := mysql.Open()
 	if err != nil {
 		return
@@ -264,9 +264,9 @@ func GetList(user_id uint64, withCompleted bool, projectId *uint64) (projects []
 
 	var rows *sql.Rows
 	if projectId == nil {
-		rows, err = stmtOut.Query(user_id)
+		rows, err = stmtOut.Query(userId)
 	} else {
-		rows, err = stmtOut.Query(user_id, *projectId)
+		rows, err = stmtOut.Query(userId, *projectId)
 	}
 	if err != nil {
 		return
