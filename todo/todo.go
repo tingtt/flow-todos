@@ -241,16 +241,20 @@ func Delete(user_id uint64, id uint64) (notFound bool, err error) {
 	return false, nil
 }
 
-func GetList(user_id uint64, withCompleted bool) (projects []Todo, err error) {
+func GetList(user_id uint64, withCompleted bool, projectId *uint64) (projects []Todo, err error) {
 	db, err := mysql.Open()
 	if err != nil {
 		return
 	}
 	defer db.Close()
 
+	// TODO: sort
 	queryStr := "SELECT id, name, description, date, time, execution_time, term_id, project_id, completed FROM todos WHERE user_id = ?"
 	if !withCompleted {
 		queryStr += " AND completed = false"
+	}
+	if projectId != nil {
+		queryStr += " AND project_id = ?"
 	}
 	stmtOut, err := db.Prepare(queryStr)
 	if err != nil {
@@ -258,7 +262,12 @@ func GetList(user_id uint64, withCompleted bool) (projects []Todo, err error) {
 	}
 	defer stmtOut.Close()
 
-	rows, err := stmtOut.Query(user_id)
+	var rows *sql.Rows
+	if projectId == nil {
+		rows, err = stmtOut.Query(user_id)
+	} else {
+		rows, err = stmtOut.Query(user_id, *projectId)
+	}
 	if err != nil {
 		return
 	}

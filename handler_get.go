@@ -10,7 +10,8 @@ import (
 )
 
 type QueryParam struct {
-	WithCompleted bool `query:"with_completed" validate:"omitempty"`
+	ProjectId     *uint64 `query:"project_id" validate:"omitempty"`
+	WithCompleted bool    `query:"with_completed" validate:"omitempty"`
 }
 
 func get(c echo.Context) error {
@@ -38,7 +39,7 @@ func get(c echo.Context) error {
 	}
 
 	// Get projects
-	projects, err := todo.GetList(user_id, q.WithCompleted)
+	projects, err := todo.GetList(user_id, q.WithCompleted, q.ProjectId)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)
