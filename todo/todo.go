@@ -3,6 +3,9 @@ package todo
 import (
 	"database/sql"
 	"flow-todos/mysql"
+	"time"
+
+	"github.com/go-playground/validator"
 )
 
 type Todo struct {
@@ -20,8 +23,8 @@ type Todo struct {
 type Post struct {
 	Name          string  `json:"name" validate:"required"`
 	Description   *string `json:"description" validate:"omitempty"`
-	Date          *string `json:"date" validate:"omitempty"`
-	Time          *string `json:"time" validate:"omitempty"`
+	Date          *string `json:"date" validate:"omitempty,Y-M-D"`
+	Time          *string `json:"time" validate:"omitempty,H:M"`
 	ExecutionTime *uint   `json:"execution_time" validate:"omitempty"`
 	TermId        *uint64 `json:"term_id" validate:"omitempty"`
 	ProjectId     *uint64 `json:"project_id" validate:"omitempty"`
@@ -31,12 +34,24 @@ type Post struct {
 type Patch struct {
 	Name          *string `json:"name" validate:"omitempty"`
 	Description   *string `json:"description" validate:"omitempty"`
-	Date          *string `json:"date" validate:"omitempty"`
-	Time          *string `json:"time" validate:"omitempty"`
+	Date          *string `json:"date" validate:"omitempty,Y-M-D"`
+	Time          *string `json:"time" validate:"omitempty,H:M"`
 	ExecutionTime *uint   `json:"execution_time" validate:"omitempty"`
 	TermId        *uint64 `json:"term_id" validate:"omitempty"`
 	ProjectId     *uint64 `json:"project_id" validate:"omitempty"`
 	Completed     *bool   `json:"completed" validate:"omitempty"`
+}
+
+func DateStrValidation(fl validator.FieldLevel) bool {
+	// `yyyy-mm-dd`
+	_, err := time.Parse("2006-1-2", fl.Field().String())
+	return err == nil
+}
+
+func HMTimeStrValidation(fl validator.FieldLevel) bool {
+	// `hh:mm`
+	_, err := time.Parse("15:4", fl.Field().String())
+	return err == nil
 }
 
 func Get(userId uint64, id uint64) (t Todo, notFound bool, err error) {
