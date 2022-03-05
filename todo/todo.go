@@ -61,7 +61,7 @@ func Get(userId uint64, id uint64) (t Todo, notFound bool, err error) {
 	}
 	defer db.Close()
 
-	stmtOut, err := db.Prepare("SELECT name, description, date, time, execution_time, term_id, project_id, completed FROM todos WHERE user_id = ? AND id = ?")
+	stmtOut, err := db.Prepare("SELECT name, description, date, TIME_FORMAT(time, '%H:%i') AS time, execution_time, term_id, project_id, completed FROM todos WHERE user_id = ? AND id = ?")
 	if err != nil {
 		return Todo{}, false, err
 	}
@@ -264,7 +264,7 @@ func GetList(userId uint64, withCompleted bool, projectId *uint64) (projects []T
 	defer db.Close()
 
 	// TODO: sort
-	queryStr := "SELECT id, name, description, date, time, execution_time, term_id, project_id, completed FROM todos WHERE user_id = ?"
+	queryStr := "SELECT id, name, description, date, TIME_FORMAT(time, '%H:%i') AS time, execution_time, term_id, project_id, completed FROM todos WHERE user_id = ?"
 	if !withCompleted {
 		queryStr += " AND completed = false"
 	}
