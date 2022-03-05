@@ -18,7 +18,7 @@ type Todo struct {
 }
 
 type Post struct {
-	Name          *string `json:"name" validate:"required"`
+	Name          string  `json:"name" validate:"required"`
 	Description   *string `json:"description" validate:"omitempty"`
 	Date          *string `json:"date" validate:"omitempty"`
 	Time          *string `json:"time" validate:"omitempty"`
@@ -133,7 +133,7 @@ func Insert(userId uint64, post Post) (p Todo, err error) {
 	}
 
 	p.Id = uint64(id)
-	p.Name = *post.Name
+	p.Name = post.Name
 	if post.Description != nil {
 		p.Description = post.Description
 	}
