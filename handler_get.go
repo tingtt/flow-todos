@@ -38,16 +38,16 @@ func get(c echo.Context) error {
 		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
 	}
 
-	// Get projects
-	projects, err := todo.GetList(userId, q.WithCompleted, q.ProjectId)
+	// Get todos
+	todos, err := todo.GetList(userId, q.WithCompleted, q.ProjectId)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 
-	if projects == nil {
+	if todos == nil {
 		return c.JSONPretty(http.StatusOK, []interface{}{}, "	")
 	}
-	return c.JSONPretty(http.StatusOK, projects, "	")
+	return c.JSONPretty(http.StatusOK, todos, "	")
 }

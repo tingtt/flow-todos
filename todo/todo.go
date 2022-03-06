@@ -256,7 +256,7 @@ func Delete(userId uint64, id uint64) (notFound bool, err error) {
 	return false, nil
 }
 
-func GetList(userId uint64, withCompleted bool, projectId *uint64) (projects []Todo, err error) {
+func GetList(userId uint64, withCompleted bool, projectId *uint64) (todos []Todo, err error) {
 	db, err := mysql.Open()
 	if err != nil {
 		return
@@ -328,7 +328,7 @@ func GetList(userId uint64, withCompleted bool, projectId *uint64) (projects []T
 			t.ProjectId = &projectIdTmp
 		}
 
-		projects = append(projects, t)
+		todos = append(todos, t)
 	}
 
 	return
