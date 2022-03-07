@@ -12,7 +12,7 @@ USE `flow-todos`;
 -- --------------------------------------------------------
 
 --
--- Table structure for table `projects`
+-- Table structure for table `todos`
 --
 
 CREATE TABLE `todos` (
