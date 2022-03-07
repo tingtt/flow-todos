@@ -54,7 +54,7 @@ paths:
         500:
           description: Internal server error
 
-  /{date}:
+  /date/{date}:
     get:
       parameters:
         - $ref: "#/components/parameters/date"
