@@ -257,13 +257,7 @@ func Delete(userId uint64, id uint64) (notFound bool, err error) {
 }
 
 func GetList(userId uint64, withCompleted bool, projectId *uint64) (todos []Todo, err error) {
-	db, err := mysql.Open()
-	if err != nil {
-		return
-	}
-	defer db.Close()
-
-	// TODO: sort
+	// Generate query
 	queryStr := "SELECT id, name, description, date, TIME_FORMAT(time, '%H:%i') AS time, execution_time, term_id, project_id, completed FROM todos WHERE user_id = ?"
 	if !withCompleted {
 		queryStr += " AND completed = false"
@@ -271,6 +265,14 @@ func GetList(userId uint64, withCompleted bool, projectId *uint64) (todos []Todo
 	if projectId != nil {
 		queryStr += " AND project_id = ?"
 	}
+	queryStr += " ORDER BY date, time"
+
+	db, err := mysql.Open()
+	if err != nil {
+		return
+	}
+	defer db.Close()
+
 	stmtOut, err := db.Prepare(queryStr)
 	if err != nil {
 		return
