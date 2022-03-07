@@ -26,8 +26,8 @@ type Post struct {
 	Date          *string `json:"date" validate:"omitempty,Y-M-D"`
 	Time          *string `json:"time" validate:"omitempty,H:M"`
 	ExecutionTime *uint   `json:"execution_time" validate:"omitempty"`
-	TermId        *uint64 `json:"term_id" validate:"omitempty"`
-	ProjectId     *uint64 `json:"project_id" validate:"omitempty"`
+	TermId        *uint64 `json:"term_id" validate:"omitempty,gte=1"`
+	ProjectId     *uint64 `json:"project_id" validate:"omitempty,gte=1"`
 	Completed     *bool   `json:"completed" validate:"omitempty"`
 }
 
@@ -37,8 +37,8 @@ type Patch struct {
 	Date          *string `json:"date" validate:"omitempty,Y-M-D"`
 	Time          *string `json:"time" validate:"omitempty,H:M"`
 	ExecutionTime *uint   `json:"execution_time" validate:"omitempty"`
-	TermId        *uint64 `json:"term_id" validate:"omitempty"`
-	ProjectId     *uint64 `json:"project_id" validate:"omitempty"`
+	TermId        *uint64 `json:"term_id" validate:"omitempty,gte=1"`
+	ProjectId     *uint64 `json:"project_id" validate:"omitempty,gte=1"`
 	Completed     *bool   `json:"completed" validate:"omitempty"`
 }
 
