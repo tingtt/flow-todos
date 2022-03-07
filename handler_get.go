@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-type QueryParam struct {
+type GetQueryParam struct {
 	ProjectId     *uint64 `query:"project_id" validate:"omitempty"`
 	WithCompleted bool    `query:"with_completed" validate:"omitempty"`
 }
@@ -24,7 +24,7 @@ func get(c echo.Context) error {
 	}
 
 	// Bind query
-	q := new(QueryParam)
+	q := new(GetQueryParam)
 	if err = c.Bind(q); err != nil {
 		// 400: Bad request
 		c.Logger().Debug(err)
