@@ -39,27 +39,10 @@ paths:
 
     get:
       parameters:
+        - $ref: "#/components/parameters/start"
+        - $ref: "#/components/parameters/end"
         - $ref: "#/components/parameters/project_id"
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Todo"
-        204:
-          description: No content
-        500:
-          description: Internal server error
-
-  /date/{date}:
-    get:
-      parameters:
-        - $ref: "#/components/parameters/date"
-        - $ref: "#/components/parameters/range"
-        - $ref: "#/components/parameters/project_id"
+        - $ref: "#/components/parameters/with_completed"
       responses:
         200:
           description: Success
@@ -220,15 +203,21 @@ components:
       in: query
       schema:
         type: integer
-    date:
-      name: date
-      in: path
-      required: true
-      schema:
-        type: string
-        format: date
-    range:
-      name: range
+    start:
+      name: start
       in: query
       schema:
-        type: integer
+        type: string
+        format: date-time
+    end:
+      name: end
+      in: query
+      schema:
+        type: string
+        format: date-time
+    with_completed:
+      name: with_completed
+      in: query
+      schema:
+        type: boolean
+        default: false
