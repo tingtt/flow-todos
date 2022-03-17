@@ -1,7 +1,6 @@
 package todo
 
 import (
-	"database/sql"
 	"flow-todos/mysql"
 	"time"
 )
@@ -9,11 +8,13 @@ import (
 func GetList(userId uint64, withCompleted bool, projectId *uint64) (todos []Todo, err error) {
 	// Generate query
 	queryStr := "SELECT id, name, description, date, TIME_FORMAT(time, '%H:%i') AS time, execution_time, term_id, project_id, completed FROM todos WHERE user_id = ?"
+	queryParams := []interface{}{userId}
 	if !withCompleted {
 		queryStr += " AND completed = false"
 	}
 	if projectId != nil {
 		queryStr += " AND project_id = ?"
+		queryParams = append(queryParams, projectId)
 	}
 	queryStr += " ORDER BY date, time"
 
@@ -29,57 +30,17 @@ func GetList(userId uint64, withCompleted bool, projectId *uint64) (todos []Todo
 	}
 	defer stmtOut.Close()
 
-	var rows *sql.Rows
-	if projectId == nil {
-		rows, err = stmtOut.Query(userId)
-	} else {
-		rows, err = stmtOut.Query(userId, *projectId)
-	}
+	rows, err := stmtOut.Query(queryParams...)
 	if err != nil {
 		return
 	}
 
 	for rows.Next() {
-		// TODO: uint64に対応
-		var (
-			id            uint64
-			name          string
-			description   sql.NullString
-			date          sql.NullString
-			time          sql.NullString
-			executionTime sql.NullInt16
-			termId        sql.NullInt64
-			projectId     sql.NullInt64
-			completed     bool
-		)
-		err = rows.Scan(&id, &name, &description, &date, &time, &executionTime, &termId, &projectId, &completed)
+		t := Todo{}
+		err = rows.Scan(&t.Id, &t.Name, &t.Description, &t.Date, &t.Time, &t.ExecutionTime, &t.TermId, &t.ProjectId, &t.Completed)
 		if err != nil {
 			return
 		}
-
-		t := Todo{Id: id, Name: name, Completed: completed}
-		if description.Valid {
-			t.Description = &description.String
-		}
-		if date.Valid {
-			t.Date = &date.String
-		}
-		if time.Valid {
-			t.Time = &time.String
-		}
-		if executionTime.Valid {
-			executionTimeTmp := uint(executionTime.Int16)
-			t.ExecutionTime = &executionTimeTmp
-		}
-		if termId.Valid {
-			termIdTmp := uint64(termId.Int64)
-			t.TermId = &termIdTmp
-		}
-		if projectId.Valid {
-			projectIdTmp := uint64(projectId.Int64)
-			t.ProjectId = &projectIdTmp
-		}
-
 		todos = append(todos, t)
 	}
 
@@ -103,17 +64,21 @@ func GetListDate(userId uint64, dateStr string, dateRange *uint, withCompleted b
 	}
 
 	// Generate query
-	queryStr := ""
+	queryStr := "SELECT id, name, description, date, TIME_FORMAT(time, '%H:%i') AS time, execution_time, term_id, project_id, completed FROM todos WHERE user_id = ?"
+	queryParams := []interface{}{userId}
 	if dateRange == nil {
-		queryStr = "SELECT id, name, description, date, TIME_FORMAT(time, '%H:%i') AS time, execution_time, term_id, project_id, completed FROM todos WHERE user_id = ? AND date = ?"
+		queryStr += " AND date = ?"
+		queryParams = append(queryParams, dateStr)
 	} else {
-		queryStr = "SELECT id, name, description, date, TIME_FORMAT(time, '%H:%i') AS time, execution_time, term_id, project_id, completed FROM todos WHERE user_id = ? AND date BETWEEN ? AND ?"
+		queryStr += " AND date BETWEEN ? AND ?"
+		queryParams = append(queryParams, dateStr, date.AddDate(0, 0, int(*dateRange)-1).Format("2006-1-2"))
 	}
 	if !withCompleted {
 		queryStr += " AND completed = false"
 	}
 	if projectId != nil {
 		queryStr += " AND project_id = ?"
+		queryParams = append(queryParams, projectId)
 	}
 	queryStr += " ORDER BY date, time"
 
@@ -129,66 +94,17 @@ func GetListDate(userId uint64, dateStr string, dateRange *uint, withCompleted b
 	}
 	defer stmtOut.Close()
 
-	var rows *sql.Rows
-	if dateRange == nil {
-		if projectId == nil {
-			rows, err = stmtOut.Query(userId, dateStr)
-		} else {
-			rows, err = stmtOut.Query(userId, dateStr, *projectId)
-		}
-	} else {
-		dateEnd := date.AddDate(0, 0, int(*dateRange)-1)
-		if projectId == nil {
-			rows, err = stmtOut.Query(userId, dateStr, dateEnd.Format("2006-1-2"))
-		} else {
-			rows, err = stmtOut.Query(userId, dateStr, dateEnd.Format("2006-1-2"), *projectId)
-		}
-	}
+	rows, err := stmtOut.Query(queryParams...)
 	if err != nil {
 		return
 	}
 
 	for rows.Next() {
-		// TODO: uint64に対応
-		var (
-			id            uint64
-			name          string
-			description   sql.NullString
-			date          sql.NullString
-			time          sql.NullString
-			executionTime sql.NullInt16
-			termId        sql.NullInt64
-			projectId     sql.NullInt64
-			completed     bool
-		)
-		err = rows.Scan(&id, &name, &description, &date, &time, &executionTime, &termId, &projectId, &completed)
+		t := Todo{}
+		err = rows.Scan(&t.Id, &t.Name, &t.Description, &t.Date, &t.Time, &t.ExecutionTime, &t.TermId, &t.ProjectId, &t.Completed)
 		if err != nil {
 			return
 		}
-
-		t := Todo{Id: id, Name: name, Completed: completed}
-		if description.Valid {
-			t.Description = &description.String
-		}
-		if date.Valid {
-			t.Date = &date.String
-		}
-		if time.Valid {
-			t.Time = &time.String
-		}
-		if executionTime.Valid {
-			executionTimeTmp := uint(executionTime.Int16)
-			t.ExecutionTime = &executionTimeTmp
-		}
-		if termId.Valid {
-			termIdTmp := uint64(termId.Int64)
-			t.TermId = &termIdTmp
-		}
-		if projectId.Valid {
-			projectIdTmp := uint64(projectId.Int64)
-			t.ProjectId = &projectIdTmp
-		}
-
 		todos = append(todos, t)
 	}
 

@@ -1,6 +1,9 @@
 package todo
 
-import "flow-todos/mysql"
+import (
+	"flow-todos/mysql"
+	"strings"
+)
 
 type PatchBody struct {
 	Name          *string `json:"name" validate:"omitempty"`
@@ -13,41 +16,63 @@ type PatchBody struct {
 	Completed     *bool   `json:"completed" validate:"omitempty"`
 }
 
-func Patch(userId uint64, id uint64, new PatchBody) (_ Todo, notFound bool, err error) {
+func Patch(userId uint64, id uint64, new PatchBody) (t Todo, notFound bool, err error) {
 	// Get old
-	old, notFound, err := Get(userId, id)
+	t, notFound, err = Get(userId, id)
 	if err != nil {
-		return Todo{}, false, err
+		return
 	}
 	if notFound {
-		return Todo{}, true, nil
+		return
 	}
 
+	// Generate query
+	queryStr := "UPDATE schemes SET"
+	var queryParams []interface{}
 	// Set no update values
-	if new.Name == nil {
-		new.Name = &old.Name
+	if new.Name != nil {
+		queryStr += " name = ?,"
+		queryParams = append(queryParams, new.Name)
+		t.Name = *new.Name
 	}
-	if new.Description == nil {
-		new.Description = old.Description
+	if new.Description != nil {
+		queryStr += " description = ?,"
+		queryParams = append(queryParams, new.Name)
+		t.Description = new.Description
 	}
-	if new.Date == nil {
-		new.Date = old.Date
+	if new.Date != nil {
+		queryStr += " date = ?,"
+		queryParams = append(queryParams, new.Name)
+		t.Date = new.Date
 	}
-	if new.Time == nil {
-		new.Time = old.Time
+	if new.Time != nil {
+		queryStr += " time = ?,"
+		queryParams = append(queryParams, new.Name)
+		t.Time = new.Time
 	}
-	if new.ExecutionTime == nil {
-		new.ExecutionTime = old.ExecutionTime
+	if new.ExecutionTime != nil {
+		queryStr += " execution_time = ?,"
+		queryParams = append(queryParams, new.Name)
+		t.ExecutionTime = new.ExecutionTime
 	}
-	if new.TermId == nil {
-		new.TermId = old.TermId
+	if new.TermId != nil {
+		queryStr += " term_id = ?,"
+		queryParams = append(queryParams, new.Name)
+		t.TermId = new.TermId
 	}
-	if new.ProjectId == nil {
-		new.ProjectId = old.ProjectId
+	if new.ProjectId != nil {
+		queryStr += " project_id = ?,"
+		queryParams = append(queryParams, new.Name)
+		t.ProjectId = new.ProjectId
 	}
-	if new.Completed == nil {
-		new.Completed = &old.Completed
+	if new.Completed != nil {
+		queryStr += " completed = ?"
+		queryParams = append(queryParams, new.Name)
+		t.Completed = *new.Completed
 	}
+	queryStr = strings.TrimRight(queryStr, ",")
+	queryStr += " WHERE user_id = ? AND id = ?"
+	queryParams = append(queryParams, userId, id)
 
 	// Update row
 	db, err := mysql.Open()
@@ -55,15 +80,15 @@ func Patch(userId uint64, id uint64, new PatchBody) (_ Todo, notFound bool, err 
 		return Todo{}, false, err
 	}
 	defer db.Close()
-	stmtIns, err := db.Prepare("UPDATE todos SET name = ?, description = ?, date = ?, time = ?, execution_time = ?, term_id = ?, project_id = ?, completed = ? WHERE user_id = ? AND id = ?")
+	stmtIns, err := db.Prepare(queryStr)
 	if err != nil {
 		return Todo{}, false, err
 	}
 	defer stmtIns.Close()
-	_, err = stmtIns.Exec(new.Name, new.Description, new.Date, new.Time, new.ExecutionTime, new.TermId, new.ProjectId, new.Completed, userId, id)
+	_, err = stmtIns.Exec(queryParams...)
 	if err != nil {
 		return Todo{}, false, err
 	}
 
-	return Todo{id, *new.Name, new.Description, new.Date, new.Time, new.ExecutionTime, new.TermId, new.ProjectId, *new.Completed}, false, nil
+	return
 }
