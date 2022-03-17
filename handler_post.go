@@ -26,7 +26,7 @@ func post(c echo.Context) error {
 	}
 
 	// Bind request body
-	post := new(todo.Post)
+	post := new(todo.PostBody)
 	if err = c.Bind(post); err != nil {
 		// 400: Bad request
 		c.Logger().Debug(err)
@@ -44,7 +44,7 @@ func post(c echo.Context) error {
 
 	// TODO: Check project id
 
-	p, err := todo.Insert(userId, *post)
+	p, err := todo.Post(userId, *post)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)
