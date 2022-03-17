@@ -4,10 +4,10 @@ import (
 	"flag"
 	"flow-todos/jwt"
 	"flow-todos/mysql"
-	"flow-todos/todo"
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo"
@@ -50,10 +50,34 @@ type CustomValidator struct {
 	validator *validator.Validate
 }
 
+func DatetimeStrValidation(fl validator.FieldLevel) bool {
+	_, err1 := time.Parse("2006-1-2T15:4:5", fl.Field().String())
+	_, err2 := time.Parse(time.RFC3339, fl.Field().String())
+	_, err3 := strconv.ParseUint(fl.Field().String(), 10, 64)
+	return err1 == nil || err2 == nil || err3 == nil
+}
+
+func datetimeStrConv(str string) (t time.Time, err error) {
+	// y-m-dTh:m:s or unix timestamp
+	t, err1 := time.Parse("2006-1-2T15:4:5", str)
+	if err1 == nil {
+		return
+	}
+	t, err2 := time.Parse(time.RFC3339, str)
+	if err2 == nil {
+		return
+	}
+	u, err3 := strconv.ParseInt(str, 10, 64)
+	if err3 == nil {
+		t = time.Unix(u, 0)
+		return
+	}
+	err = fmt.Errorf("\"%s\" is not a unix timestamp or string format \"2006-1-2T15:4:5\"", str)
+	return
+}
+
 func (cv *CustomValidator) Validate(i interface{}) error {
-	// Register custum validations
-	cv.validator.RegisterValidation("Y-M-D", todo.DateStrValidation)
-	cv.validator.RegisterValidation("H:M", todo.HMTimeStrValidation)
+	cv.validator.RegisterValidation("datetime", DatetimeStrValidation)
 
 	if err := cv.validator.Struct(i); err != nil {
 		// Optionally, you could return the error to give each route more control over the status code
@@ -79,8 +103,7 @@ func main() {
 	e.Logger.Info(mysql.SetDSNTCP(*mysqlUser, *mysqlPasswd, *mysqlHost, *mysqlPort, *mysqlDB))
 
 	// Restricted routes
-	e.GET("/", get)
-	e.GET("/date/:date", getDate)
+	e.GET("/", getList)
 	e.POST("/", post)
 	e.PATCH(":id", patch)
 	e.DELETE(":id", delete)
