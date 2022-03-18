@@ -3,6 +3,7 @@ package main
 import (
 	"flow-todos/jwt"
 	"flow-todos/todo"
+	"fmt"
 	"net/http"
 
 	jwtGo "github.com/dgrijalva/jwt-go"
@@ -40,9 +41,35 @@ func post(c echo.Context) error {
 		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
 	}
 
-	// TODO: Check term id
+	// Check project id
+	if post.ProjectId != nil {
+		valid, err := checkProjectId(u.Raw, *post.ProjectId)
+		if err != nil {
+			// 500: Internal server error
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+		}
+		if !valid {
+			// 409: Conflit
+			c.Logger().Debug(fmt.Sprintf("project id: %d does not exist", *post.ProjectId))
+			return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("project id: %d does not exist", *post.ProjectId)}, "	")
+		}
+	}
 
-	// TODO: Check project id
+	// Check sprint id
+	if post.TermId != nil {
+		valid, err := checkProjectId(u.Raw, *post.TermId)
+		if err != nil {
+			// 500: Internal server error
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+		}
+		if !valid {
+			// 409: Conflit
+			c.Logger().Debug(fmt.Sprintf("project id: %d does not exist", *post.TermId))
+			return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("project id: %d does not exist", *post.TermId)}, "	")
+		}
+	}
 
 	p, err := todo.Post(userId, *post)
 	if err != nil {
