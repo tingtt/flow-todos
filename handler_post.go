@@ -58,7 +58,7 @@ func post(c echo.Context) error {
 
 	// Check sprint id
 	if post.SprintId != nil {
-		valid, err := checkProjectId(u.Raw, *post.SprintId)
+		valid, err := checkSprintId(u.Raw, *post.SprintId)
 		if err != nil {
 			// 500: Internal server error
 			c.Logger().Debug(err)
@@ -66,8 +66,8 @@ func post(c echo.Context) error {
 		}
 		if !valid {
 			// 409: Conflit
-			c.Logger().Debug(fmt.Sprintf("project id: %d does not exist", *post.SprintId))
-			return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("project id: %d does not exist", *post.SprintId)}, "	")
+			c.Logger().Debug(fmt.Sprintf("sprint id: %d does not exist", *post.SprintId))
+			return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("sprint id: %d does not exist", *post.SprintId)}, "	")
 		}
 	}
 
