@@ -131,7 +131,7 @@ components:
           pattern: '^\d{2}:\d{2}$'
         execution_time:
           type: integer
-        term_id:
+        sprint_id:
           type: integer
         project_id:
           type: integer
@@ -151,7 +151,7 @@ components:
           format: date-time
         execution_time:
           type: integer
-        term_id:
+        sprint_id:
           type: integer
         project_id:
           type: integer
@@ -170,7 +170,7 @@ components:
           format: date-time
         execution_time:
           type: integer
-        term_id:
+        sprint_id:
           type: integer
         project_id:
           type: integer

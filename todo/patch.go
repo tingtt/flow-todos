@@ -11,7 +11,7 @@ type PatchBody struct {
 	Date          *string `json:"date" validate:"omitempty,Y-M-D"`
 	Time          *string `json:"time" validate:"omitempty,H:M"`
 	ExecutionTime *uint   `json:"execution_time" validate:"omitempty"`
-	TermId        *uint64 `json:"term_id" validate:"omitempty,gte=1"`
+	SprintId      *uint64 `json:"sprint_id" validate:"omitempty,gte=1"`
 	ProjectId     *uint64 `json:"project_id" validate:"omitempty,gte=1"`
 	Completed     *bool   `json:"completed" validate:"omitempty"`
 }
@@ -55,10 +55,10 @@ func Patch(userId uint64, id uint64, new PatchBody) (t Todo, notFound bool, err 
 		queryParams = append(queryParams, new.Name)
 		t.ExecutionTime = new.ExecutionTime
 	}
-	if new.TermId != nil {
-		queryStr += " term_id = ?,"
+	if new.SprintId != nil {
+		queryStr += " sprint_id = ?,"
 		queryParams = append(queryParams, new.Name)
-		t.TermId = new.TermId
+		t.SprintId = new.SprintId
 	}
 	if new.ProjectId != nil {
 		queryStr += " project_id = ?,"

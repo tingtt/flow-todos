@@ -14,7 +14,7 @@ type GetListQuery struct {
 
 func GetList(userId uint64, q GetListQuery) (todos []Todo, err error) {
 	// Generate query
-	queryStr := "SELECT id, name, description, date, TIME_FORMAT(time, '%H:%i') AS time, execution_time, term_id, project_id, completed FROM todos WHERE user_id = ?"
+	queryStr := "SELECT id, name, description, date, TIME_FORMAT(time, '%H:%i') AS time, execution_time, sprint_id, project_id, completed FROM todos WHERE user_id = ?"
 	queryParams := []interface{}{userId}
 	if q.Start != nil && q.End != nil {
 		queryStr += " AND ADDTIME(CONVERT(date,DATETIME),COALESCE(time,0)) BETWEEN ? AND ?"
@@ -51,7 +51,7 @@ func GetList(userId uint64, q GetListQuery) (todos []Todo, err error) {
 
 	for rows.Next() {
 		t := Todo{}
-		err = rows.Scan(&t.Id, &t.Name, &t.Description, &t.Date, &t.Time, &t.ExecutionTime, &t.TermId, &t.ProjectId, &t.Completed)
+		err = rows.Scan(&t.Id, &t.Name, &t.Description, &t.Date, &t.Time, &t.ExecutionTime, &t.SprintId, &t.ProjectId, &t.Completed)
 		if err != nil {
 			return
 		}

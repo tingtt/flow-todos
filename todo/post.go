@@ -13,7 +13,7 @@ type PostBody struct {
 	Date          *string `json:"date" validate:"omitempty,Y-M-D"`
 	Time          *string `json:"time" validate:"omitempty,H:M"`
 	ExecutionTime *uint   `json:"execution_time" validate:"omitempty"`
-	TermId        *uint64 `json:"term_id" validate:"omitempty,gte=1"`
+	SprintId      *uint64 `json:"sprint_id" validate:"omitempty,gte=1"`
 	ProjectId     *uint64 `json:"project_id" validate:"omitempty,gte=1"`
 	Completed     *bool   `json:"completed" validate:"omitempty"`
 }
@@ -43,12 +43,12 @@ func Post(userId uint64, post PostBody) (p Todo, err error) {
 		return Todo{}, err
 	}
 	defer db.Close()
-	stmtIns, err := db.Prepare("INSERT INTO todos (user_id, name, description, date, time, execution_time, term_id, project_id, completed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
+	stmtIns, err := db.Prepare("INSERT INTO todos (user_id, name, description, date, time, execution_time, sprint_id, project_id, completed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		return Todo{}, err
 	}
 	defer stmtIns.Close()
-	result, err := stmtIns.Exec(userId, post.Name, post.Description, post.Date, post.Time, post.ExecutionTime, post.TermId, post.ProjectId, post.Completed)
+	result, err := stmtIns.Exec(userId, post.Name, post.Description, post.Date, post.Time, post.ExecutionTime, post.SprintId, post.ProjectId, post.Completed)
 	if err != nil {
 		return Todo{}, err
 	}
@@ -71,8 +71,8 @@ func Post(userId uint64, post PostBody) (p Todo, err error) {
 	if post.ExecutionTime != nil {
 		p.ExecutionTime = post.ExecutionTime
 	}
-	if post.TermId != nil {
-		p.TermId = post.TermId
+	if post.SprintId != nil {
+		p.SprintId = post.SprintId
 	}
 	if post.ProjectId != nil {
 		p.ProjectId = post.ProjectId

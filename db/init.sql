@@ -23,7 +23,7 @@ CREATE TABLE `todos` (
   `date` date DEFAULT NULL,
   `time` time DEFAULT NULL,
   `execution_time` int DEFAULT NULL COMMENT 'minute',
-  `term_id` bigint UNSIGNED DEFAULT NULL,
+  `sprint_id` bigint UNSIGNED DEFAULT NULL,
   `project_id` bigint UNSIGNED DEFAULT NULL,
   `completed` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

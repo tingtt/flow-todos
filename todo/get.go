@@ -11,7 +11,7 @@ func Get(userId uint64, id uint64) (t Todo, notFound bool, err error) {
 	}
 	defer db.Close()
 
-	stmtOut, err := db.Prepare("SELECT name, description, date, TIME_FORMAT(time, '%H:%i') AS time, execution_time, term_id, project_id, completed FROM todos WHERE user_id = ? AND id = ?")
+	stmtOut, err := db.Prepare("SELECT name, description, date, TIME_FORMAT(time, '%H:%i') AS time, execution_time, sprint_id, project_id, completed FROM todos WHERE user_id = ? AND id = ?")
 	if err != nil {
 		return
 	}
@@ -27,7 +27,7 @@ func Get(userId uint64, id uint64) (t Todo, notFound bool, err error) {
 		notFound = true
 		return
 	}
-	err = rows.Scan(&t.Name, &t.Description, &t.Date, &t.Time, &t.ExecutionTime, &t.TermId, &t.ProjectId, &t.Completed)
+	err = rows.Scan(&t.Name, &t.Description, &t.Date, &t.Time, &t.ExecutionTime, &t.SprintId, &t.ProjectId, &t.Completed)
 	if err != nil {
 		return
 	}
