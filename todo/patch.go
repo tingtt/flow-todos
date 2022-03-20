@@ -1,19 +1,140 @@
 package todo
 
 import (
+	"encoding/json"
 	"flow-todos/mysql"
 	"strings"
 )
 
 type PatchBody struct {
-	Name          *string `json:"name" validate:"omitempty"`
-	Description   *string `json:"description" validate:"omitempty"`
-	Date          *string `json:"date" validate:"omitempty,Y-M-D"`
-	Time          *string `json:"time" validate:"omitempty,H:M"`
-	ExecutionTime *uint   `json:"execution_time" validate:"omitempty"`
-	SprintId      *uint64 `json:"sprint_id" validate:"omitempty,gte=1"`
-	ProjectId     *uint64 `json:"project_id" validate:"omitempty,gte=1"`
-	Completed     *bool   `json:"completed" validate:"omitempty"`
+	Name          *string                 `json:"name" validate:"omitempty"`
+	Description   PatchNullJSONString     `json:"description" validate:"omitempty"`
+	Date          PatchNullJSONDateString `json:"date" validate:"omitempty,Y-M-D"`
+	Time          PatchNullJSONDateString `json:"time" validate:"omitempty,H:M"`
+	ExecutionTime PatchNullUint           `json:"execution_time" validate:"omitempty"`
+	SprintId      PatchNullJSONUint64     `json:"sprint_id" validate:"dive"`
+	ProjectId     PatchNullJSONUint64     `json:"project_id" validate:"dive"`
+	Completed     *bool                   `json:"completed" validate:"omitempty"`
+}
+
+type PatchNullJSONString struct {
+	String **string `validate:"omitempty,gte=1"`
+}
+
+type PatchNullJSONDateString struct {
+	String **string `validate:"omitempty,Y-M-D"`
+}
+
+type PatchNullJSONTimeString struct {
+	String **string `validate:"omitempty,H:M"`
+}
+
+type PatchNullUint struct {
+	UInt **uint `validate:"omitempty,gte=1"`
+}
+
+type PatchNullJSONUint64 struct {
+	UInt64 **uint64 `validate:"omitempty,gte=1"`
+}
+
+func (p *PatchNullJSONString) UnmarshalJSON(data []byte) error {
+	// If this method was called, the value was set.
+	var valueP *string = nil
+	if string(data) == "null" {
+		// key exists and value is null
+		p.String = &valueP
+		return nil
+	}
+
+	var tmp string
+	tmpP := &tmp
+	if err := json.Unmarshal(data, &tmp); err != nil {
+		// invalid value type
+		return err
+	}
+	// valid value
+	p.String = &tmpP
+	return nil
+}
+
+func (p *PatchNullJSONDateString) UnmarshalJSON(data []byte) error {
+	// If this method was called, the value was set.
+	var valueP *string = nil
+	if string(data) == "null" {
+		// key exists and value is null
+		p.String = &valueP
+		return nil
+	}
+
+	var tmp string
+	tmpP := &tmp
+	if err := json.Unmarshal(data, &tmp); err != nil {
+		// invalid value type
+		return err
+	}
+	// valid value
+	p.String = &tmpP
+	return nil
+}
+
+func (p *PatchNullJSONTimeString) UnmarshalJSON(data []byte) error {
+	// If this method was called, the value was set.
+	var valueP *string = nil
+	if string(data) == "null" {
+		// key exists and value is null
+		p.String = &valueP
+		return nil
+	}
+
+	var tmp string
+	tmpP := &tmp
+	if err := json.Unmarshal(data, &tmp); err != nil {
+		// invalid value type
+		return err
+	}
+	// valid value
+	p.String = &tmpP
+	return nil
+}
+
+func (p *PatchNullUint) UnmarshalJSON(data []byte) error {
+	// If this method was called, the value was set.
+	var valueP *uint = nil
+	if string(data) == "null" {
+		// key exists and value is null
+		p.UInt = &valueP
+		return nil
+	}
+
+	var tmp uint
+	tmpP := &tmp
+	if err := json.Unmarshal(data, &tmp); err != nil {
+		// invalid value type
+		return err
+	}
+	// valid value
+	p.UInt = &tmpP
+	return nil
+}
+
+func (p *PatchNullJSONUint64) UnmarshalJSON(data []byte) error {
+	// If this method was called, the value was set.
+	var valueP *uint64 = nil
+	if string(data) == "null" {
+		// key exists and value is null
+		p.UInt64 = &valueP
+		return nil
+	}
+
+	var tmp uint64
+	tmpP := &tmp
+	if err := json.Unmarshal(data, &tmp); err != nil {
+		// invalid value type
+		return err
+	}
+	// valid value
+	p.UInt64 = &tmpP
+	return nil
 }
 
 func Patch(userId uint64, id uint64, new PatchBody) (t Todo, notFound bool, err error) {
@@ -35,35 +156,71 @@ func Patch(userId uint64, id uint64, new PatchBody) (t Todo, notFound bool, err 
 		queryParams = append(queryParams, new.Name)
 		t.Name = *new.Name
 	}
-	if new.Description != nil {
-		queryStr += " description = ?,"
-		queryParams = append(queryParams, new.Name)
-		t.Description = new.Description
+	if new.Description.String != nil {
+		if *new.Description.String != nil {
+			queryStr += " description = ?,"
+			queryParams = append(queryParams, **new.Description.String)
+			t.Description = *new.Description.String
+		} else {
+			queryStr += " description = ?,"
+			queryParams = append(queryParams, nil)
+			t.Description = nil
+		}
 	}
-	if new.Date != nil {
-		queryStr += " date = ?,"
-		queryParams = append(queryParams, new.Name)
-		t.Date = new.Date
+	if new.Date.String != nil {
+		if *new.Date.String != nil {
+			queryStr += " date = ?,"
+			queryParams = append(queryParams, **new.Date.String)
+			t.Date = *new.Date.String
+		} else {
+			queryStr += " date = ?,"
+			queryParams = append(queryParams, nil)
+			t.Date = nil
+		}
 	}
-	if new.Time != nil {
-		queryStr += " time = ?,"
-		queryParams = append(queryParams, new.Name)
-		t.Time = new.Time
+	if new.Time.String != nil {
+		if *new.Time.String != nil {
+			queryStr += " time = ?,"
+			queryParams = append(queryParams, **new.Time.String)
+			t.Time = *new.Time.String
+		} else {
+			queryStr += " time = ?,"
+			queryParams = append(queryParams, nil)
+			t.Time = nil
+		}
 	}
-	if new.ExecutionTime != nil {
-		queryStr += " execution_time = ?,"
-		queryParams = append(queryParams, new.Name)
-		t.ExecutionTime = new.ExecutionTime
+	if new.ExecutionTime.UInt != nil {
+		if *new.ExecutionTime.UInt != nil {
+			queryStr += " execution_time = ?,"
+			queryParams = append(queryParams, **new.ExecutionTime.UInt)
+			t.ExecutionTime = *new.ExecutionTime.UInt
+		} else {
+			queryStr += " execution_time = ?,"
+			queryParams = append(queryParams, nil)
+			t.ExecutionTime = nil
+		}
 	}
-	if new.SprintId != nil {
-		queryStr += " sprint_id = ?,"
-		queryParams = append(queryParams, new.Name)
-		t.SprintId = new.SprintId
+	if new.SprintId.UInt64 != nil {
+		if *new.SprintId.UInt64 != nil {
+			queryStr += " sprint_id = ?,"
+			queryParams = append(queryParams, **new.SprintId.UInt64)
+			t.SprintId = *new.SprintId.UInt64
+		} else {
+			queryStr += " sprint_id = ?,"
+			queryParams = append(queryParams, nil)
+			t.SprintId = nil
+		}
 	}
-	if new.ProjectId != nil {
-		queryStr += " project_id = ?,"
-		queryParams = append(queryParams, new.Name)
-		t.ProjectId = new.ProjectId
+	if new.ProjectId.UInt64 != nil {
+		if *new.ProjectId.UInt64 != nil {
+			queryStr += " parent_id = ?,"
+			queryParams = append(queryParams, **new.ProjectId.UInt64)
+			t.ProjectId = *new.ProjectId.UInt64
+		} else {
+			queryStr += " parent_id = ?,"
+			queryParams = append(queryParams, nil)
+			t.ProjectId = nil
+		}
 	}
 	if new.Completed != nil {
 		queryStr += " completed = ?"
