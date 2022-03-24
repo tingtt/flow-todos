@@ -30,6 +30,9 @@ func GetList(userId uint64, q GetListQuery) (todos []Todo, err error) {
 		queryStr += " AND project_id = ?"
 		queryParams = append(queryParams, q.ProjectId)
 	}
+	if !q.WithCompleted {
+		queryStr += " AND completed = false"
+	}
 	queryStr += " ORDER BY date, time"
 
 	db, err := mysql.Open()
