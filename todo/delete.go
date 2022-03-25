@@ -8,12 +8,12 @@ func Delete(userId uint64, id uint64) (notFound bool, err error) {
 		return false, err
 	}
 	defer db.Close()
-	stmtIns, err := db.Prepare("DELETE FROM todos WHERE user_id = ? AND id = ?")
+	stmt, err := db.Prepare("DELETE FROM todos WHERE user_id = ? AND id = ?")
 	if err != nil {
 		return false, err
 	}
-	defer stmtIns.Close()
-	result, err := stmtIns.Exec(userId, id)
+	defer stmt.Close()
+	result, err := stmt.Exec(userId, id)
 	if err != nil {
 		return false, err
 	}

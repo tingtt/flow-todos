@@ -237,12 +237,12 @@ func Patch(userId uint64, id uint64, new PatchBody) (t Todo, notFound bool, err 
 		return Todo{}, false, err
 	}
 	defer db.Close()
-	stmtIns, err := db.Prepare(queryStr)
+	stmt, err := db.Prepare(queryStr)
 	if err != nil {
 		return Todo{}, false, err
 	}
-	defer stmtIns.Close()
-	_, err = stmtIns.Exec(queryParams...)
+	defer stmt.Close()
+	_, err = stmt.Exec(queryParams...)
 	if err != nil {
 		return Todo{}, false, err
 	}

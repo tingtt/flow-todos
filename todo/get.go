@@ -11,13 +11,13 @@ func Get(userId uint64, id uint64) (t Todo, notFound bool, err error) {
 	}
 	defer db.Close()
 
-	stmtOut, err := db.Prepare("SELECT name, description, date, TIME_FORMAT(time, '%H:%i') AS time, execution_time, sprint_id, project_id, completed FROM todos WHERE user_id = ? AND id = ?")
+	stmt, err := db.Prepare("SELECT name, description, date, TIME_FORMAT(time, '%H:%i') AS time, execution_time, sprint_id, project_id, completed FROM todos WHERE user_id = ? AND id = ?")
 	if err != nil {
 		return
 	}
-	defer stmtOut.Close()
+	defer stmt.Close()
 
-	rows, err := stmtOut.Query(userId, id)
+	rows, err := stmt.Query(userId, id)
 	if err != nil {
 		return
 	}

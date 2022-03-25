@@ -41,13 +41,13 @@ func GetList(userId uint64, q GetListQuery) (todos []Todo, err error) {
 	}
 	defer db.Close()
 
-	stmtOut, err := db.Prepare(queryStr)
+	stmt, err := db.Prepare(queryStr)
 	if err != nil {
 		return
 	}
-	defer stmtOut.Close()
+	defer stmt.Close()
 
-	rows, err := stmtOut.Query(queryParams...)
+	rows, err := stmt.Query(queryParams...)
 	if err != nil {
 		return
 	}

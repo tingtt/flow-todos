@@ -43,12 +43,12 @@ func Post(userId uint64, post PostBody) (p Todo, err error) {
 		return Todo{}, err
 	}
 	defer db.Close()
-	stmtIns, err := db.Prepare("INSERT INTO todos (user_id, name, description, date, time, execution_time, sprint_id, project_id, completed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
+	stmt, err := db.Prepare("INSERT INTO todos (user_id, name, description, date, time, execution_time, sprint_id, project_id, completed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		return Todo{}, err
 	}
-	defer stmtIns.Close()
-	result, err := stmtIns.Exec(userId, post.Name, post.Description, post.Date, post.Time, post.ExecutionTime, post.SprintId, post.ProjectId, post.Completed)
+	defer stmt.Close()
+	result, err := stmt.Exec(userId, post.Name, post.Description, post.Date, post.Time, post.ExecutionTime, post.SprintId, post.ProjectId, post.Completed)
 	if err != nil {
 		return Todo{}, err
 	}
