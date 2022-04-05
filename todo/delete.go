@@ -8,7 +8,11 @@ func Delete(userId uint64, id uint64) (notFound bool, err error) {
 		return false, err
 	}
 	defer db.Close()
-	stmt, err := db.Prepare("DELETE FROM todos WHERE user_id = ? AND id = ?")
+	stmt, err := db.Prepare(
+		`DELETE todos, repeat_models
+			FROM todos LEFT JOIN repeat_models ON todos.repeat_model_id = repeat_models.id
+			WHERE todos.user_id = ? AND todos.id = ?`,
+	)
 	if err != nil {
 		return false, err
 	}
