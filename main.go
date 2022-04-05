@@ -4,6 +4,7 @@ import (
 	"flag"
 	"flow-todos/jwt"
 	"flow-todos/mysql"
+	"flow-todos/todo"
 	"fmt"
 	"os"
 	"strconv"
@@ -79,7 +80,10 @@ func datetimeStrConv(str string) (t time.Time, err error) {
 }
 
 func (cv *CustomValidator) Validate(i interface{}) error {
+	// Register custum validations
 	cv.validator.RegisterValidation("datetime", DatetimeStrValidation)
+	cv.validator.RegisterValidation("Y-M-D", todo.DateStrValidation)
+	cv.validator.RegisterValidation("H:M", todo.HMTimeStrValidation)
 
 	if err := cv.validator.Struct(i); err != nil {
 		// Optionally, you could return the error to give each route more control over the status code
