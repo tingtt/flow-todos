@@ -45,7 +45,7 @@ var (
 	jwtIssuer          = flag.String("jwt-issuer", getEnv("JWT_ISSUER", "flow-users"), "JWT issuer")
 	jwtSecret          = flag.String("jwt-secret", getEnv("JWT_SECRET", ""), "JWT secret")
 	serviceUrlProjects = flag.String("service-url-projects", getEnv("SERVICE_URL_PROJECTS", ""), "Service url: flow-projects")
-	serviceUrlSprints  = flag.String("service-url-projects", getEnv("SERVICE_URL_SPRINTS", ""), "Service url: flow-sprints")
+	serviceUrlSprints  = flag.String("service-url-sprints", getEnv("SERVICE_URL_SPRINTS", ""), "Service url: flow-sprints")
 )
 
 type CustomValidator struct {
