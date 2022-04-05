@@ -129,6 +129,7 @@ components:
         time:
           type: string
           pattern: '^\d{2}:\d{2}$'
+          example: "09:00"
         execution_time:
           type: integer
         sprint_id:
@@ -138,6 +139,33 @@ components:
         completed:
           type: boolean
           default: false
+        repeat:
+          type: object
+          properties:
+            until:
+              type: string
+              format: date
+            unit:
+              type: string
+              enum:
+                - day
+                - week
+                - month
+            every_other:
+              type: integer
+            days:
+              type: array
+              items:
+                type: object
+                properties:
+                  day:
+                    type: integer
+                    minimum: 0
+                    maximum: 6
+                  time:
+                    type: string
+                    pattern: '^\d{2}:\d{2}$'
+                    example: "09:00"
 
     CreateTodoBody:
       type: object
@@ -146,15 +174,47 @@ components:
           type: string
         description:
           type: string
-        datetime:
+        date:
           type: string
-          format: date-time
+          format: date
+        time:
+          type: string
+          pattern: '^\d{2}:\d{2}$'
+          example: "09:00"
         execution_time:
           type: integer
         sprint_id:
           type: integer
         project_id:
           type: integer
+        repeat:
+          type: object
+          properties:
+            until:
+              type: string
+              format: date
+            unit:
+              type: string
+              enum:
+                - day
+                - week
+                - month
+              default: day
+            every_other:
+              type: integer
+            days:
+              type: array
+              items:
+                type: object
+                properties:
+                  day:
+                    type: integer
+                    minimum: 0
+                    maximum: 6
+                  time:
+                    type: string
+                    pattern: '^\d{2}:\d{2}$'
+                    example: "09:00"
       required:
         - name
 
@@ -177,6 +237,60 @@ components:
         completed:
           type: boolean
           default: false
+        repeat:
+          type: object
+          properties:
+            until:
+              type: string
+              format: date
+            unit:
+              type: string
+              enum:
+                - day
+                - week
+                - month
+              default: day
+            every_other:
+              type: integer
+            days:
+              type: array
+              items:
+                type: object
+                properties:
+                  day:
+                    type: integer
+                    minimum: 0
+                    maximum: 6
+                  time:
+                    type: string
+                    pattern: '^\d{2}:\d{2}$'
+
+    RepeatModel:
+      type: object
+      properties:
+        until:
+          type: string
+          format: date
+        unit:
+          type: string
+          enum:
+            - day
+            - week
+            - month
+        every_other:
+          type: integer
+        day:
+          type: array
+          items:
+            type: object
+            properties:
+              day:
+                type: integer
+                minimum: 0
+                maximum: 6
+              time:
+                type: string
+                pattern: '^\d{2}:\d{2}$'
 
   requestBodies:
     CreateTodo:

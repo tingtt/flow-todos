@@ -10,4 +10,18 @@ type Todo struct {
 	SprintId      *uint64 `json:"sprint_id,omitempty"`
 	ProjectId     *uint64 `json:"project_id,omitempty"`
 	Completed     bool    `json:"completed"`
+	Repeat        *Repeat `json:"repeat,omitempty"`
+}
+
+type Repeat struct {
+	Until      *string     `json:"until,omitempty" validate:"omitempty,Y-M-D"`
+	Unit       string      `json:"unit" validate:"required,oneof=day week month"`
+	EveryOther *uint       `json:"every_other,omitempty" validate:"omitempty"`
+	Date       *uint       `json:"date,omitempty" validate:"omitempty,min=0,max=31"`
+	Days       []RepeatDay `json:"days,omitempty" validate:"omitempty,dive"`
+}
+
+type RepeatDay struct {
+	Day  uint    `json:"day" validate:"required,min=0,max=6"`
+	Time *string `json:"time,omitempty" validate:"omitempty,H:M"`
 }

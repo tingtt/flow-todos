@@ -5,6 +5,7 @@ import (
 	"flow-todos/todo"
 	"fmt"
 	"net/http"
+	"time"
 
 	jwtGo "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
@@ -38,6 +39,20 @@ func post(c echo.Context) error {
 		// 422: Unprocessable entity
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
+	}
+	if post.Repeat != nil && post.Repeat.Until != nil {
+		// Validate `date` and `repeat.until`
+		if post.Date == nil {
+			// 400: Bad request
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": "`date` required to set `repeat.until`"}, "	")
+		}
+		var t1, t2 time.Time
+		t1, _ = time.Parse("2006-1-2", *post.Date)
+		t2, _ = time.Parse("2006-1-2", *post.Repeat.Until)
+		if t1.After(t2) {
+			// 400: Bad request
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": "`date` must until `repeat.until`"}, "	")
+		}
 	}
 
 	// Check project id
