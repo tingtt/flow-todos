@@ -92,6 +92,6 @@ func post(c echo.Context) error {
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 
-	// 200: Success
-	return c.JSONPretty(http.StatusOK, p, "	")
+	// 201: Created
+	return c.JSONPretty(http.StatusCreated, p, "	")
 }
