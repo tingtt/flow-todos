@@ -14,26 +14,33 @@ type GetListQuery struct {
 
 func GetList(userId uint64, q GetListQuery) (todos []Todo, err error) {
 	// Generate query
-	queryStr := "SELECT id, name, description, date, TIME_FORMAT(time, '%H:%i') AS time, execution_time, sprint_id, project_id, completed FROM todos WHERE user_id = ?"
+	queryStr :=
+		`SELECT
+			todo.id, todo.name, todo.description, todo.date, TIME_FORMAT(todo.time, '%H:%i') AS time, todo.execution_time, todo.sprint_id, todo.project_id, todo.completed,
+			rpm.until, rpm.unit, rpm.every_other, rpm.date, rpd.day, TIME_FORMAT(rpd.time, '%H:%i') AS day_time
+		FROM todos as todo
+			LEFT JOIN repeat_models as rpm ON todo.repeat_model_id = rpm.id
+			LEFT JOIN repeat_days as rpd ON rpm.id = rpd.repeat_model_id
+		WHERE todo.user_id = ?`
 	queryParams := []interface{}{userId}
 	if q.Start != nil && q.End != nil {
-		queryStr += " AND ADDTIME(CONVERT(date,DATETIME),COALESCE(time,0)) BETWEEN ? AND ?"
+		queryStr += " AND ADDTIME(CONVERT(todo.date,DATETIME),COALESCE(todo.time,0)) BETWEEN ? AND ?"
 		queryParams = append(queryParams, q.Start.UTC(), q.End.UTC())
 	} else if q.Start != nil {
-		queryStr += " AND ADDTIME(CONVERT(date,DATETIME),COALESCE(time,0)) >= ?"
+		queryStr += " AND ADDTIME(CONVERT(todo.date,DATETIME),COALESCE(todo.time,0)) >= ?"
 		queryParams = append(queryParams, q.Start)
 	} else if q.End != nil {
-		queryStr += " AND ADDTIME(CONVERT(date,DATETIME),COALESCE(time,0)) <= ?"
+		queryStr += " AND ADDTIME(CONVERT(todo.date,DATETIME),COALESCE(todo.time,0)) <= ?"
 		queryParams = append(queryParams, q.End)
 	}
 	if q.ProjectId != nil {
-		queryStr += " AND project_id = ?"
+		queryStr += " AND todo.project_id = ?"
 		queryParams = append(queryParams, q.ProjectId)
 	}
 	if !q.WithCompleted {
-		queryStr += " AND completed = false"
+		queryStr += " AND todo.completed = false"
 	}
-	queryStr += " ORDER BY date, time"
+	queryStr += " ORDER BY todo.id, rpd.day, rpd.time"
 
 	db, err := mysql.Open()
 	if err != nil {
@@ -52,13 +59,38 @@ func GetList(userId uint64, q GetListQuery) (todos []Todo, err error) {
 		return
 	}
 
+	var tmpTodo Todo
 	for rows.Next() {
 		t := Todo{}
-		err = rows.Scan(&t.Id, &t.Name, &t.Description, &t.Date, &t.Time, &t.ExecutionTime, &t.SprintId, &t.ProjectId, &t.Completed)
+		var repeatUnit *string
+		repeatModel := Repeat{}
+		var repeatDayNum *uint
+		var repeatDayTime *string
+		err = rows.Scan(
+			&t.Id, &t.Name, &t.Description, &t.Date, &t.Time, &t.ExecutionTime, &t.SprintId, &t.ProjectId, &t.Completed,
+			&repeatModel.Until, &repeatUnit, &repeatModel.EveryOther, &repeatModel.Date, &repeatDayNum, &repeatDayTime,
+		)
 		if err != nil {
 			return
 		}
-		todos = append(todos, t)
+		if repeatUnit != nil {
+			repeatModel.Unit = *repeatUnit
+			if repeatModel.Unit == "week" && repeatDayNum != nil {
+				repeatModel.Days = []RepeatDay{{*repeatDayNum, repeatDayTime}}
+			}
+			t.Repeat = &repeatModel
+		}
+		if t.Id == tmpTodo.Id {
+			tmpTodo.Repeat.Days = append(tmpTodo.Repeat.Days, t.Repeat.Days...)
+		} else {
+			if tmpTodo.Id != 0 {
+				todos = append(todos, tmpTodo)
+			}
+			tmpTodo = t
+		}
+	}
+	if tmpTodo.Id != 0 {
+		todos = append(todos, tmpTodo)
 	}
 
 	return
