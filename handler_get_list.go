@@ -11,10 +11,11 @@ import (
 )
 
 type GetListQuery struct {
-	Start         *string `query:"start" validate:"omitempty,datetime"`
-	End           *string `query:"end" validate:"omitempty,datetime"`
-	ProjectId     *uint64 `query:"project_id" validate:"omitempty,gte=1"`
-	WithCompleted bool    `query:"with_completed" validate:"omitempty"`
+	Start               *string `query:"start" validate:"omitempty,datetime"`
+	End                 *string `query:"end" validate:"omitempty,datetime"`
+	ProjectId           *uint64 `query:"project_id" validate:"omitempty,gte=1"`
+	WithCompleted       bool    `query:"with_completed" validate:"omitempty"`
+	WithRepeatSchedules bool    `query:"with_repeat_schedules" validate:"omietmpty"`
 }
 
 func getList(c echo.Context) error {
@@ -59,7 +60,12 @@ func getList(c echo.Context) error {
 		}
 		end = &endTmp
 	}
-	queryParsed := todo.GetListQuery{Start: start, End: end, ProjectId: query.ProjectId, WithCompleted: query.WithCompleted}
+	if query.WithRepeatSchedules && query.End == nil {
+		// 400: Bad request
+		c.Logger().Debug("\"end\" required to get repeat schedules")
+		return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": "\"end\" required to get repeat schedules"}, "	")
+	}
+	queryParsed := todo.GetListQuery{Start: start, End: end, ProjectId: query.ProjectId, WithCompleted: query.WithCompleted, WithRepeatSchedules: query.WithRepeatSchedules}
 
 	// Get todos
 	todos, err := todo.GetList(userId, queryParsed)

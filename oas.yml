@@ -43,6 +43,7 @@ paths:
         - $ref: "#/components/parameters/end"
         - $ref: "#/components/parameters/project_id"
         - $ref: "#/components/parameters/with_completed"
+        - $ref: "#/components/parameters/with_repeat_schedules"
       responses:
         200:
           description: Success
@@ -51,7 +52,9 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Todo"
+                  oneOf:
+                    - $ref: "#/components/schemas/Todo"
+                    - $ref: "#/components/schemas/RepeatSchedule"
         204:
           description: No content
         500:
@@ -166,6 +169,31 @@ components:
                     type: string
                     pattern: '^\d{2}:\d{2}$'
                     example: "09:00"
+    RepeatSchedule:
+      type: object
+      properties:
+        original_id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        date:
+          type: string
+          format: date
+        time:
+          type: string
+          pattern: '^\d{2}:\d{2}$'
+          example: "09:00"
+        execution_time:
+          type: integer
+        sprint_id:
+          type: integer
+        project_id:
+          type: integer
+        completed:
+          type: boolean
+          default: false
 
     CreateTodoBody:
       type: object
@@ -331,6 +359,12 @@ components:
         format: date-time
     with_completed:
       name: with_completed
+      in: query
+      schema:
+        type: boolean
+        default: false
+    with_repeat_schedules:
+      name: with_repeat_schedules
       in: query
       schema:
         type: boolean

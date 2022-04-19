@@ -2,14 +2,17 @@ package todo
 
 import (
 	"flow-todos/mysql"
+	"sort"
 	"time"
 )
 
 type GetListQuery struct {
-	Start         *time.Time `query:"start" validate:"omitempty"`
-	End           *time.Time `query:"end" validate:"omitempty"`
-	ProjectId     *uint64    `query:"project_id" validate:"omitempty,gte=1"`
-	WithCompleted bool       `query:"with_completed" validate:"omitempty"`
+	Start               *time.Time `query:"start" validate:"omitempty"`
+	End                 *time.Time `query:"end" validate:"omitempty"`
+	ProjectId           *uint64    `query:"project_id" validate:"omitempty,gte=1"`
+	WithCompleted       bool       `query:"with_completed" validate:"omitempty"`
+	WithRepeatSchedules bool       `query:"with_repeat_schedules" validate:"omietmpty"`
+	OnlyRepeatModel     bool
 }
 
 func GetList(userId uint64, q GetListQuery) (todos []Todo, err error) {
@@ -39,6 +42,9 @@ func GetList(userId uint64, q GetListQuery) (todos []Todo, err error) {
 	}
 	if !q.WithCompleted {
 		queryStr += " AND todo.completed = false"
+	}
+	if q.OnlyRepeatModel {
+		queryStr += " AND todo.repeat_model_id IS NOT NULL"
 	}
 	queryStr += " ORDER BY todo.id, rpd.day, rpd.time"
 
@@ -93,5 +99,75 @@ func GetList(userId uint64, q GetListQuery) (todos []Todo, err error) {
 		todos = append(todos, tmpTodo)
 	}
 
+	if !q.WithRepeatSchedules || q.End == nil {
+		// Sort
+		sort.Slice(todos, func(i, j int) bool {
+			// Null end Todo.Date
+			if todos[i].Date == nil || todos[j].Date == nil {
+				return todos[i].Date != nil && todos[j].Date == nil
+			}
+
+			// Asc Todo.Date
+			if *todos[i].Date == *todos[j].Date {
+				// Null end Todo.Time
+				if todos[i].Time == nil || todos[j].Time == nil {
+					return todos[i].Time != nil && todos[j].Time == nil
+				}
+				// Asc Todo.Time
+				return *todos[i].Time < *todos[j].Time
+			}
+			return *todos[i].Date < *todos[j].Date
+		})
+
+		return
+	}
+
+	var todos1 []Todo
+	for _, t := range todos {
+		if t.Repeat == nil || t.Date == nil {
+			todos1 = append(todos1, t)
+		} else {
+			var todos2 []Todo
+			todos2, _, _, _, _ = t.GetScheduledRepeats(q.Start, *q.End)
+			todos1 = append(todos1, todos2...)
+		}
+	}
+	if q.Start != nil {
+		q2 := q
+		newEnd := q2.Start.Add(-time.Minute)
+		q2.End = &newEnd
+		q2.Start = nil
+		q2.WithCompleted = false
+		q2.WithRepeatSchedules = false
+		q2.OnlyRepeatModel = true
+		var todos3 []Todo
+		todos3, err = GetList(userId, q2)
+		for _, t := range todos3 {
+			var todos4 []Todo
+			todos4, _, _, _, _ = t.GetScheduledRepeats(q.Start, *q.End)
+			todos1 = append(todos1, todos4...)
+		}
+	}
+
+	// Sort
+	sort.Slice(todos1, func(i, j int) bool {
+		// Null end Todo.Date
+		if todos1[i].Date == nil || todos1[j].Date == nil {
+			return todos1[i].Date != nil && todos1[j].Date == nil
+		}
+
+		// Asc Todo.Date
+		if *todos1[i].Date == *todos1[j].Date {
+			// Null end Todo.Time
+			if todos1[i].Time == nil || todos1[j].Time == nil {
+				return todos1[i].Time != nil && todos1[j].Time == nil
+			}
+			// Asc Todo.Time
+			return *todos1[i].Time < *todos1[j].Time
+		}
+		return *todos1[i].Date < *todos1[j].Date
+	})
+
+	todos = todos1
 	return
 }
