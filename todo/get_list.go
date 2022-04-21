@@ -11,7 +11,7 @@ type GetListQuery struct {
 	End                 *time.Time `query:"end" validate:"omitempty"`
 	ProjectId           *uint64    `query:"project_id" validate:"omitempty,gte=1"`
 	WithCompleted       bool       `query:"with_completed" validate:"omitempty"`
-	WithRepeatSchedules bool       `query:"with_repeat_schedules" validate:"omietmpty"`
+	WithRepeatSchedules bool       `query:"with_repeat_schedules" validate:"omitempty"`
 	OnlyRepeatModel     bool
 }
 
