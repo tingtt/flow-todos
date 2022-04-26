@@ -64,6 +64,7 @@ func GetList(userId uint64, q GetListQuery) (todos []Todo, err error) {
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 
 	var tmpTodo Todo
 	for rows.Next() {

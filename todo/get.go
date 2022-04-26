@@ -29,6 +29,7 @@ func Get(userId uint64, id uint64) (t Todo, notFound bool, err error) {
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 
 	if !rows.Next() {
 		// Not found
