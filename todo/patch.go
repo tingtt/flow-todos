@@ -224,7 +224,7 @@ func Patch(userId uint64, id uint64, new PatchBody) (t Todo, notFound bool, err 
 	}
 	if new.Completed != nil {
 		queryStr += " completed = ?"
-		queryParams = append(queryParams, new.Name)
+		queryParams = append(queryParams, new.Completed)
 		t.Completed = *new.Completed
 	}
 	queryStr = strings.TrimRight(queryStr, ",")
