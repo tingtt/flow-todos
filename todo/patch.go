@@ -148,7 +148,7 @@ func Patch(userId uint64, id uint64, new PatchBody) (t Todo, notFound bool, err 
 	}
 
 	// Generate query
-	queryStr := "UPDATE schemes SET"
+	queryStr := "UPDATE todos SET"
 	var queryParams []interface{}
 	// Set no update values
 	if new.Name != nil {
