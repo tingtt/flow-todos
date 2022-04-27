@@ -234,17 +234,17 @@ func Patch(userId uint64, id uint64, new PatchBody) (t Todo, notFound bool, err 
 	// Update row
 	db, err := mysql.Open()
 	if err != nil {
-		return Todo{}, false, err
+		return
 	}
 	defer db.Close()
 	stmt, err := db.Prepare(queryStr)
 	if err != nil {
-		return Todo{}, false, err
+		return
 	}
 	defer stmt.Close()
 	_, err = stmt.Exec(queryParams...)
 	if err != nil {
-		return Todo{}, false, err
+		return
 	}
 
 	return
