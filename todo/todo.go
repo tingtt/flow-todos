@@ -53,17 +53,18 @@ func (r *Repeat) GetNext(year int, month time.Month, day int) (nextDate string, 
 			return r.Days[i].Day < r.Days[j].Day
 		})
 		// Find next
-		nextDay := r.Days[0].Day
+		nextDay := time.Weekday(r.Days[0].Day)
 		for _, rd := range r.Days {
 			if currentDay < time.Weekday(rd.Day) {
-				nextDay = rd.Day
+				nextDay = time.Weekday(rd.Day)
 				nextTime = rd.Time
 				break
 			}
 		}
 		// Create time.Time
-		for date.Weekday() != time.Weekday(nextDay) {
-			date.AddDate(0, 0, 1)
+		date = date.AddDate(0, 0, 1)
+		for date.Weekday() != nextDay {
+			date = date.AddDate(0, 0, 1)
 		}
 
 		nextDate = date.Format("2006-01-02")
@@ -80,14 +81,14 @@ func (r *Repeat) GetNext(year int, month time.Month, day int) (nextDate string, 
 			date = date.AddDate(0, 1+int(*r.EveryOther), 0)
 		}
 		for targetMonth != date.Month() {
-			date.AddDate(0, 0, -1)
+			date = date.AddDate(0, 0, -1)
 		}
 		if r.Date != nil && date.Day() < int(*r.Date) {
 			for date.Day() != int(*r.Date) && date.Month() == targetMonth {
-				date.AddDate(0, 0, 1)
+				date = date.AddDate(0, 0, 1)
 			}
 			if date.Month() != targetMonth {
-				date.AddDate(0, 0, -1)
+				date = date.AddDate(0, 0, -1)
 			}
 		}
 		nextDate = date.Format("2006-01-02")
