@@ -70,16 +70,27 @@ func (r *Repeat) GetNext(year int, month time.Month, day int) (nextDate string, 
 
 	case "month":
 		// next month
-
-		var newDate time.Time
+		currentMonth := date.Month()
+		targetMonth := currentMonth + 1
 		if r.EveryOther == nil {
-			newDate = date.AddDate(0, 1, 0)
+			date = date.AddDate(0, 1, 0)
 		} else {
 			// every other
+			targetMonth += time.Month(*r.EveryOther)
 			date = date.AddDate(0, 1+int(*r.EveryOther), 0)
 		}
-
-		nextDate = newDate.Format("2006-01-02")
+		for targetMonth != date.Month() {
+			date.AddDate(0, 0, -1)
+		}
+		if r.Date != nil && date.Day() < int(*r.Date) {
+			for date.Day() != int(*r.Date) && date.Month() == targetMonth {
+				date.AddDate(0, 0, 1)
+			}
+			if date.Month() != targetMonth {
+				date.AddDate(0, 0, -1)
+			}
+		}
+		nextDate = date.Format("2006-01-02")
 
 	default:
 		invalidUnit = true
