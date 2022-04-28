@@ -117,6 +117,24 @@ paths:
         500:
           description: Internal server error
 
+  /{id}/skip:
+    patch:
+      parameters:
+        - $ref: "#/components/parameters/id"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Todo"
+        404:
+          description: Not found
+        409:
+          description: Conflict
+        500:
+          description: Internal server error
+
   /{id}/complete:
     patch:
       parameters:
