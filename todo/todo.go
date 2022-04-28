@@ -61,6 +61,10 @@ func (r *Repeat) GetNext(year int, month time.Month, day int) (nextDate string, 
 				break
 			}
 		}
+		// every other ?
+		if r.EveryOther != nil && nextDay < currentDay {
+			date = date.AddDate(0, 0, 7)
+		}
 		// Create time.Time
 		date = date.AddDate(0, 0, 1)
 		for date.Weekday() != nextDay {
