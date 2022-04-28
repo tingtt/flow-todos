@@ -117,6 +117,30 @@ paths:
         500:
           description: Internal server error
 
+  /{id}/complete:
+    patch:
+      parameters:
+        - $ref: "#/components/parameters/id"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Todo"
+                  - type: array
+                    items:
+                      $ref: "#/components/schemas/Todo"
+                    minItems: 2
+                    maxItems: 2
+        404:
+          description: Not found
+        409:
+          description: Conflict
+        500:
+          description: Internal server error
+
 components:
   schemas:
     Todo:
