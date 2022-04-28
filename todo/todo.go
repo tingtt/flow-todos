@@ -32,7 +32,7 @@ type RepeatDay struct {
 	Time *string `json:"time,omitempty" validate:"omitempty,H:M"`
 }
 
-func (r *Repeat) GetNext(year int, month time.Month, day int) (nextDate string, nextTime *string, invalidUnit bool) {
+func (r *Repeat) GetNext(year int, month time.Month, day int) (nextDate string, nextTime *string, overUntil bool, invalidUnit bool, err error) {
 	date := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 
 	switch r.Unit {
@@ -95,6 +95,18 @@ func (r *Repeat) GetNext(year int, month time.Month, day int) (nextDate string, 
 	default:
 		invalidUnit = true
 	}
+
+	if r.Until != nil {
+		var until time.Time
+		until, err = time.Parse("2006-1-2", *r.Until)
+		if err != nil {
+			return
+		}
+		// Over until ?
+		if date.After(until) {
+			overUntil = true
+		}
+	}
 	return
 }
 
@@ -134,9 +146,16 @@ func (t *Todo) GetScheduledRepeats(start *time.Time, end time.Time) (todos []Tod
 	for !current.After(end) {
 		var nextDate string
 		var nextTime *string
-		nextDate, nextTime, invalidUnit = t.Repeat.GetNext(current.Year(), current.Month(), current.Day())
+		var overUntil bool
+		nextDate, nextTime, overUntil, invalidUnit, err = t.Repeat.GetNext(current.Year(), current.Month(), current.Day())
+		if err != nil {
+			return
+		}
 		if invalidUnit {
 			return
+		}
+		if overUntil {
+			break
 		}
 
 		if t.Time == nil {
