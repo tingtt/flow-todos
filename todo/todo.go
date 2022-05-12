@@ -22,7 +22,7 @@ type Todo struct {
 type Repeat struct {
 	Until      *string     `json:"until,omitempty" validate:"omitempty,Y-M-D"`
 	Unit       string      `json:"unit" validate:"required,oneof=day week month"`
-	EveryOther *uint       `json:"every_other,omitempty" validate:"omitempty"`
+	EveryOther *uint       `json:"every_other,omitempty" validate:"omitempty,gte=1"`
 	Date       *uint       `json:"date,omitempty" validate:"omitempty,min=0,max=31"`
 	Days       []RepeatDay `json:"days,omitempty" validate:"omitempty,dive"`
 }

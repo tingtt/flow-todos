@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	jwtGo "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
@@ -41,20 +40,6 @@ func post(c echo.Context) error {
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
 	}
-	if post.Repeat != nil && post.Repeat.Until != nil {
-		// Validate `date` and `repeat.until`
-		if post.Date == nil {
-			// 400: Bad request
-			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": "`date` required to set `repeat.until`"}, "	")
-		}
-		var t1, t2 time.Time
-		t1, _ = time.Parse("2006-1-2", *post.Date)
-		t2, _ = time.Parse("2006-1-2", *post.Repeat.Until)
-		if t1.After(t2) {
-			// 400: Bad request
-			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": "`date` must until `repeat.until`"}, "	")
-		}
-	}
 
 	// Check project id
 	if post.ProjectId != nil {
@@ -86,11 +71,26 @@ func post(c echo.Context) error {
 		}
 	}
 
-	p, err := todo.Post(userId, *post)
+	p, dateNotFound, dateOverUntil, noDaysWithWeekly, err := todo.Post(userId, *post)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+	}
+	if dateNotFound {
+		// 400: Bad request
+		c.Logger().Debug("`date` required to set `repeat.until`")
+		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": "`date` required to set `repeat`"}, "	")
+	}
+	if dateOverUntil {
+		// 400: Bad request
+		c.Logger().Debug("`date` must until `repeat.until`")
+		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": "`date` must until `repeat.until`"}, "	")
+	}
+	if noDaysWithWeekly {
+		// 400: Bad request
+		c.Logger().Debug("`repeat.days` required with `repeat.unit: \"week\"`")
+		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": "`repeat.days` required with `repeat.unit: \"week\"`"}, "	")
 	}
 
 	// 201: Created
