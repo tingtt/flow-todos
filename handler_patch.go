@@ -82,7 +82,7 @@ func patch(c echo.Context) error {
 		}
 	}
 
-	p, notFound, err := todo.Patch(userId, id, *patch)
+	p, notFound, dateNotFound, dateOverUtil, noDaysWithWeekly, err := todo.Patch(userId, id, *patch)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)
@@ -92,6 +92,21 @@ func patch(c echo.Context) error {
 		// 404: Not found
 		c.Logger().Debug("project not found")
 		return echo.ErrNotFound
+	}
+	if dateNotFound {
+		// 400: Bad request
+		c.Logger().Debug("`date` required to set `repeat.until`")
+		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": "`date` required to set `repeat`"}, "	")
+	}
+	if dateOverUtil {
+		// 400: Bad request
+		c.Logger().Debug("`date` must until `repeat.until`")
+		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": "`date` must until `repeat.until`"}, "	")
+	}
+	if noDaysWithWeekly {
+		// 400: Bad request
+		c.Logger().Debug("`repeat.days` required with `repeat.unit: \"week\"`")
+		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": "`repeat.days` required with `repeat.unit: \"week\"`"}, "	")
 	}
 
 	// 200: Success
