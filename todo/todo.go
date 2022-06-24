@@ -149,6 +149,9 @@ func (t *Todo) GetScheduledRepeats(start *time.Time, end time.Time) (todos []Tod
 		current = *start
 	}
 
+	fmt.Printf("current: %v\n", current)
+	fmt.Printf("end: %v\n", end)
+	fmt.Printf("Add: %v\n", !current.After(end))
 	for !current.After(end) {
 		var nextDate string
 		var nextTime *string
