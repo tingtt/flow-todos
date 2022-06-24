@@ -174,6 +174,7 @@ func (t *Todo) GetScheduledRepeats(start *time.Time, end time.Time) (todos []Tod
 		}
 
 		fmt.Printf("current: %v\n", current)
+		fmt.Printf("end: %v\n", end)
 		fmt.Printf("Add: %v\n", !current.After(end))
 		if !current.After(end) {
 			nextTodo := *t
