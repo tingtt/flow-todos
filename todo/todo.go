@@ -1,7 +1,6 @@
 package todo
 
 import (
-	"fmt"
 	"sort"
 	"time"
 )
@@ -149,11 +148,7 @@ func (t *Todo) GetScheduledRepeats(start *time.Time, end time.Time) (todos []Tod
 		current = *start
 	}
 
-	fmt.Println("--------")
-	fmt.Printf("current: %v\n", current)
-	fmt.Printf("end: %v\n", end)
-	fmt.Printf("Add: %v\n", !current.After(end))
-	fmt.Println("----for----")
+	current = current.AddDate(0, 0, -1)
 	for !current.After(end) {
 		var nextDate string
 		var nextTime *string
@@ -178,9 +173,6 @@ func (t *Todo) GetScheduledRepeats(start *time.Time, end time.Time) (todos []Tod
 			return
 		}
 
-		fmt.Printf("current: %v\n", current)
-		fmt.Printf("end: %v\n", end)
-		fmt.Printf("Add: %v\n", !current.After(end))
 		if !current.After(end) {
 			nextTodo := *t
 			nextTodo.OriginalId = nextTodo.Id
