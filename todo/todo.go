@@ -1,7 +1,6 @@
 package todo
 
 import (
-	"fmt"
 	"sort"
 	"time"
 )
@@ -164,12 +163,10 @@ func (t *Todo) GetScheduledRepeats(start *time.Time, end time.Time) (todos []Tod
 			break
 		}
 
-		fmt.Println(nextDate, nextTime)
-		if nextTime != nil {
-			fmt.Printf("nextTime: %v\n", nextTime)
-		}
 		if t.Time == nil {
 			current, err = time.Parse("2006-1-2", nextDate)
+		} else if nextTime == nil {
+			current, err = time.Parse("2006-1-2T15:4", nextDate+"T")
 		} else {
 			current, err = time.Parse("2006-1-2T15:4", nextDate+"T"+*nextTime)
 		}
