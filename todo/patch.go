@@ -12,7 +12,7 @@ type PatchBody struct {
 	Name          *string                 `json:"name" validate:"omitempty"`
 	Description   PatchNullJSONString     `json:"description" validate:"omitempty"`
 	Date          PatchNullJSONDateString `json:"date" validate:"omitempty"`
-	Time          PatchNullJSONDateString `json:"time" validate:"omitempty"`
+	Time          PatchNullJSONTimeString `json:"time" validate:"omitempty"`
 	ExecutionTime PatchNullUint           `json:"execution_time" validate:"omitempty"`
 	SprintId      PatchNullJSONUint64     `json:"sprint_id" validate:"omitempty"`
 	ProjectId     PatchNullJSONUint64     `json:"project_id" validate:"omitempty"`
