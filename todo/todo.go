@@ -139,16 +139,15 @@ func (t *Todo) GetScheduledRepeats(start *time.Time, end time.Time) (todos []Tod
 
 	var current time.Time
 	if start == nil {
-		current = datetime
+		current = datetime.AddDate(0, 0, -1)
 	} else if !datetime.Before(*start) {
 		current = datetime
 		// Add this Todo
 		todos = append(todos, *t)
 	} else {
-		current = *start
+		current = (*start).AddDate(0, 0, -1)
 	}
 
-	current = current.AddDate(0, 0, -1)
 	for !current.After(end) {
 		var nextDate string
 		var nextTime *string
