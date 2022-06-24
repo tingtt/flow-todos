@@ -40,7 +40,7 @@ func (r *Repeat) GetNext(year int, month time.Month, day int) (nextDate string, 
 		// next day
 		date = date.AddDate(0, 0, 1)
 		if r.EveryOther != nil {
-			// every other
+			// every others
 			date = date.AddDate(0, 0, int(*r.EveryOther))
 		}
 
@@ -165,7 +165,7 @@ func (t *Todo) GetScheduledRepeats(start *time.Time, end time.Time) (todos []Tod
 
 		if t.Time == nil {
 			current, err = time.Parse("2006-1-2", nextDate)
-		} else if nextTime == nil {
+		} else if nextTime == nil || *nextTime == "" {
 			current, err = time.Parse("2006-1-2T15:4", nextDate+"T")
 		} else {
 			current, err = time.Parse("2006-1-2T15:4", nextDate+"T"+*nextTime)
