@@ -14,7 +14,7 @@ type PostBody struct {
 	Description   *string `json:"description" validate:"omitempty"`
 	Date          *string `json:"date" validate:"omitempty,Y-M-D"`
 	Time          *string `json:"time" validate:"omitempty,H:M"`
-	ExecutionTime *uint   `json:"execution_time" validate:"omitempty"`
+	ExecutionTime *uint   `json:"execution_time" validate:"omitempty,step15,gte=15"`
 	SprintId      *uint64 `json:"sprint_id" validate:"omitempty,gte=1"`
 	ProjectId     *uint64 `json:"project_id" validate:"omitempty,gte=1"`
 	Completed     *bool   `json:"completed" validate:"omitempty"`
@@ -31,6 +31,11 @@ func HMTimeStrValidation(fl validator.FieldLevel) bool {
 	// `hh:mm`
 	_, err := time.Parse("15:4", fl.Field().String())
 	return err == nil
+}
+
+func Step15IntValidation(fl validator.FieldLevel) bool {
+	// `step15`
+	return fl.Field().Int()/15 == 0
 }
 
 func Post(userId uint64, post PostBody) (p Todo, dateNotFound bool, dateOverUntil bool, noDaysWithWeekly bool, err error) {
@@ -176,7 +181,9 @@ func Post(userId uint64, post PostBody) (p Todo, dateNotFound bool, dateOverUnti
 		p.Time = post.Time
 	}
 	if post.ExecutionTime != nil {
-		p.ExecutionTime = post.ExecutionTime
+		p.ExecutionTime = *post.ExecutionTime
+	} else {
+		p.ExecutionTime = 15
 	}
 	if post.SprintId != nil {
 		p.SprintId = post.SprintId

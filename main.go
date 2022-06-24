@@ -84,6 +84,7 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 	cv.validator.RegisterValidation("datetime", DatetimeStrValidation)
 	cv.validator.RegisterValidation("Y-M-D", todo.DateStrValidation)
 	cv.validator.RegisterValidation("H:M", todo.HMTimeStrValidation)
+	cv.validator.RegisterValidation("step15", todo.Step15IntValidation)
 
 	if err := cv.validator.Struct(i); err != nil {
 		// Optionally, you could return the error to give each route more control over the status code

@@ -13,7 +13,7 @@ type PatchBody struct {
 	Description   PatchNullJSONString     `json:"description" validate:"omitempty"`
 	Date          PatchNullJSONDateString `json:"date" validate:"omitempty"`
 	Time          PatchNullJSONTimeString `json:"time" validate:"omitempty"`
-	ExecutionTime PatchNullUint           `json:"execution_time" validate:"omitempty"`
+	ExecutionTime *uint                   `json:"execution_time" validate:"omitempty,step15,gte=15"`
 	SprintId      PatchNullJSONUint64     `json:"sprint_id" validate:"omitempty"`
 	ProjectId     PatchNullJSONUint64     `json:"project_id" validate:"omitempty"`
 	Completed     *bool                   `json:"completed" validate:"omitempty"`
@@ -529,16 +529,10 @@ func Patch(userId uint64, id uint64, new PatchBody) (t Todo, notFound bool, date
 		}
 		noUpdate = false
 	}
-	if new.ExecutionTime.UInt != nil {
-		if *new.ExecutionTime.UInt != nil {
-			queryStr += " execution_time = ?,"
-			queryParams = append(queryParams, **new.ExecutionTime.UInt)
-			updated.ExecutionTime = *new.ExecutionTime.UInt
-		} else {
-			queryStr += " execution_time = ?,"
-			queryParams = append(queryParams, nil)
-			updated.ExecutionTime = nil
-		}
+	if new.ExecutionTime != nil {
+		queryStr += " execution_time = ?,"
+		queryParams = append(queryParams, new.ExecutionTime)
+		updated.ExecutionTime = *new.ExecutionTime
 		noUpdate = false
 	}
 	if new.SprintId.UInt64 != nil {
