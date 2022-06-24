@@ -163,10 +163,8 @@ func (t *Todo) GetScheduledRepeats(start *time.Time, end time.Time) (todos []Tod
 			break
 		}
 
-		if t.Time == nil {
+		if t.Time == nil || nextTime == nil || *nextTime == "" {
 			current, err = time.Parse("2006-1-2", nextDate)
-		} else if nextTime == nil || *nextTime == "" {
-			current, err = time.Parse("2006-1-2T15:4", nextDate+"T")
 		} else {
 			current, err = time.Parse("2006-1-2T15:4", nextDate+"T"+*nextTime)
 		}
