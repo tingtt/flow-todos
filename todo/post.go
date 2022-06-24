@@ -10,7 +10,7 @@ import (
 )
 
 type PostBody struct {
-	Name          string  `json:"name" validate:"required"`
+	Name          string  `json:"name" validate:"required,gte=1"`
 	Description   *string `json:"description" validate:"omitempty"`
 	Date          *string `json:"date" validate:"omitempty,Y-M-D"`
 	Time          *string `json:"time" validate:"omitempty,H:M"`
