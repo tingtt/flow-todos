@@ -129,7 +129,10 @@ func GetList(userId uint64, q GetListQuery) (todos []Todo, err error) {
 			todos1 = append(todos1, t)
 		} else {
 			var todos2 []Todo
-			todos2, _, _, _, _ = t.GetScheduledRepeats(q.Start, *q.End)
+			todos2, _, _, _, err = t.GetScheduledRepeats(q.Start, *q.End)
+			if err != nil {
+				return
+			}
 			todos1 = append(todos1, todos2...)
 		}
 	}
@@ -145,7 +148,10 @@ func GetList(userId uint64, q GetListQuery) (todos []Todo, err error) {
 		todos3, err = GetList(userId, q2)
 		for _, t := range todos3 {
 			var todos4 []Todo
-			todos4, _, _, _, _ = t.GetScheduledRepeats(q.Start, *q.End)
+			todos4, _, _, _, err = t.GetScheduledRepeats(q.Start, *q.End)
+			if err != nil {
+				return
+			}
 			todos1 = append(todos1, todos4...)
 		}
 	}
