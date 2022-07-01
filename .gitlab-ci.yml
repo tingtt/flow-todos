@@ -31,4 +31,4 @@ deploy-job:
     - chmod -R 777 db/log
   script:
     - sudo docker-compose build web
-    - sudo docker-compose up -d
+    - sudo docker-compose up -d --force-recreate web
