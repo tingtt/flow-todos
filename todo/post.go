@@ -35,7 +35,7 @@ func HMTimeStrValidation(fl validator.FieldLevel) bool {
 
 func Step15IntValidation(fl validator.FieldLevel) bool {
 	// `step15`
-	return fl.Field().Int()/15 == 0
+	return fl.Field().Uint()/15 == 0
 }
 
 func Post(userId uint64, post PostBody) (p Todo, dateNotFound bool, dateOverUntil bool, noDaysWithWeekly bool, err error) {
