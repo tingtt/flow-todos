@@ -28,7 +28,7 @@ func GetList(userId uint64, q GetListQuery) (todos []Todo, err error) {
 	queryParams := []interface{}{userId}
 	if q.Start != nil && q.End != nil {
 		queryStr += " AND ADDTIME(CONVERT(todo.date,DATETIME),COALESCE(todo.time,0)) BETWEEN ? AND ?"
-		queryParams = append(queryParams, q.Start.UTC(), q.End.UTC())
+		queryParams = append(queryParams, q.Start, q.End)
 	} else if q.Start != nil {
 		queryStr += " AND ADDTIME(CONVERT(todo.date,DATETIME),COALESCE(todo.time,0)) >= ?"
 		queryParams = append(queryParams, q.Start)
