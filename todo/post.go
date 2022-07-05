@@ -14,7 +14,7 @@ type PostBody struct {
 	Description   *string `json:"description" validate:"omitempty"`
 	Date          *string `json:"date" validate:"omitempty,Y-M-D"`
 	Time          *string `json:"time" validate:"omitempty,H:M"`
-	ExecutionTime *uint   `json:"execution_time" validate:"omitempty,step15,gte=15"`
+	ExecutionTime *uint   `json:"execution_time" validate:"step15,gte=15"`
 	SprintId      *uint64 `json:"sprint_id" validate:"omitempty,gte=1"`
 	ProjectId     *uint64 `json:"project_id" validate:"omitempty,gte=1"`
 	Completed     *bool   `json:"completed" validate:"omitempty"`
