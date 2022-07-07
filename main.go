@@ -136,6 +136,9 @@ func main() {
 	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		Claims:     &jwt.JwtCustumClaims{},
 		SigningKey: []byte(*jwtSecret),
+		Skipper: func(c echo.Context) bool {
+			return c.Path() == "/-/readiness"
+		},
 	}))
 
 	// Health check route
