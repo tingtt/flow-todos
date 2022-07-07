@@ -6,6 +6,7 @@ import (
 	"flow-todos/mysql"
 	"flow-todos/todo"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -102,13 +103,45 @@ func main() {
 	e.Logger.SetLevel(log.Lvl(*logLevel))
 	e.Validator = &CustomValidator{validator: validator.New()}
 
+	// Setup db client instance
+	e.Logger.Info(mysql.SetDSNTCP(*mysqlUser, *mysqlPasswd, *mysqlHost, *mysqlPort, *mysqlDB))
+	// Check connection
+	d, err := mysql.Open()
+	if err != nil {
+		e.Logger.Fatal(err)
+	}
+	if err = d.Ping(); err != nil {
+		e.Logger.Fatal(err)
+	}
+
+	// Service status check
+	if *serviceUrlProjects == "" {
+		e.Logger.Fatal("`--service-url-projects` option is required")
+	}
+	if ok, err := checkHealth(*serviceUrlProjects + "/-/readiness"); err != nil {
+		e.Logger.Fatalf("failed to check health of external service `flow-projects` %s", err)
+	} else if !ok {
+		e.Logger.Fatal("failed to check health of external service `flow-projects`")
+	}
+	if *serviceUrlSprints == "" {
+		e.Logger.Fatal("`--service-url-sprints` option is required")
+	}
+	if ok, err := checkHealth(*serviceUrlSprints + "/-/readiness"); err != nil {
+		e.Logger.Fatalf("failed to check health of external service `flow-sprints` %s", err)
+	} else if !ok {
+		e.Logger.Fatal("failed to check health of external service `flow-sprints`")
+	}
+
+	// Setup JWT
 	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		Claims:     &jwt.JwtCustumClaims{},
 		SigningKey: []byte(*jwtSecret),
 	}))
 
-	// Setup db client instance
-	e.Logger.Info(mysql.SetDSNTCP(*mysqlUser, *mysqlPasswd, *mysqlHost, *mysqlPort, *mysqlDB))
+	// Health check route
+	e.GET("/-/readiness", func(c echo.Context) error {
+		return c.String(http.StatusOK, "flow-sprints is Healthy.\n")
+	})
 
 	// Restricted routes
 	e.GET("/", getList)
