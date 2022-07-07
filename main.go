@@ -143,7 +143,7 @@ func main() {
 
 	// Health check route
 	e.GET("/-/readiness", func(c echo.Context) error {
-		return c.String(http.StatusOK, "flow-sprints is Healthy.\n")
+		return c.String(http.StatusOK, "flow-todos is Healthy.\n")
 	})
 
 	// Restricted routes
