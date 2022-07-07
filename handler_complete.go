@@ -32,6 +32,7 @@ func complete(c echo.Context) error {
 	t, newTodo, notFound, dateNotFound, invalidUnit, err := todo.Complete(userId, id)
 	if err != nil {
 		// 500: Internal Server Error
+		c.Logger().Error(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 	if notFound {
@@ -39,12 +40,12 @@ func complete(c echo.Context) error {
 		return echo.ErrNotFound
 	}
 	if invalidUnit {
-		// 409: Conflict
-		return c.JSONPretty(http.StatusConflict, map[string]string{"message": "invalid todo repeat unit"}, "	")
+		// 400: Bad request
+		return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": "invalid todo repeat unit"}, "	")
 	}
 	if dateNotFound {
-		// 409: Conflict
-		return c.JSONPretty(http.StatusConflict, map[string]string{"message": "todo.date does not exists"}, "	")
+		// 400: Bad request
+		return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": "todo.date does not exists"}, "	")
 	}
 
 	if newTodo.Id != 0 {

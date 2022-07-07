@@ -57,13 +57,13 @@ func patch(c echo.Context) error {
 		valid, err := checkProjectId(u.Raw, **patch.ProjectId.UInt64)
 		if err != nil {
 			// 500: Internal server error
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 		if !valid {
 			// 409: Conflit
-			c.Logger().Debug(fmt.Sprintf("project id: %d does not exist", **patch.ProjectId.UInt64))
-			return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("project id: %d does not exist", **patch.ProjectId.UInt64)}, "	")
+			c.Logger().Debugf("project id: %d does not exist", **patch.ProjectId.UInt64)
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": fmt.Sprintf("project id: %d does not exist", **patch.ProjectId.UInt64)}, "	")
 		}
 	}
 
@@ -72,20 +72,20 @@ func patch(c echo.Context) error {
 		valid, err := checkSprintId(u.Raw, **patch.SprintId.UInt64)
 		if err != nil {
 			// 500: Internal server error
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 		if !valid {
 			// 409: Conflit
 			c.Logger().Debug(fmt.Sprintf("sprint id: %d does not exist", **patch.SprintId.UInt64))
-			return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("sprint id: %d does not exist", **patch.SprintId.UInt64)}, "	")
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": fmt.Sprintf("sprint id: %d does not exist", **patch.SprintId.UInt64)}, "	")
 		}
 	}
 
 	p, notFound, dateNotFound, dateOverUtil, noDaysWithWeekly, err := todo.Patch(userId, id, *patch)
 	if err != nil {
 		// 500: Internal server error
-		c.Logger().Debug(err)
+		c.Logger().Error(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 	if notFound {
@@ -96,17 +96,17 @@ func patch(c echo.Context) error {
 	if dateNotFound {
 		// 400: Bad request
 		c.Logger().Debug("`date` required to set `repeat.until`")
-		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": "`date` required to set `repeat`"}, "	")
+		return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": "`date` required to set `repeat`"}, "	")
 	}
 	if dateOverUtil {
 		// 400: Bad request
 		c.Logger().Debug("`date` must until `repeat.until`")
-		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": "`date` must until `repeat.until`"}, "	")
+		return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": "`date` must until `repeat.until`"}, "	")
 	}
 	if noDaysWithWeekly {
 		// 400: Bad request
 		c.Logger().Debug("`repeat.days` required with `repeat.unit: \"week\"`")
-		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": "`repeat.days` required with `repeat.unit: \"week\"`"}, "	")
+		return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": "`repeat.days` required with `repeat.unit: \"week\"`"}, "	")
 	}
 
 	// 200: Success

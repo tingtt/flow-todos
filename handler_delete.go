@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"flow-todos/jwt"
 	"flow-todos/todo"
 	"net/http"
@@ -33,12 +32,12 @@ func delete(c echo.Context) error {
 	notFound, err := todo.Delete(userId, id)
 	if err != nil {
 		// 500: Internal server error
-		c.Logger().Debug(err)
+		c.Logger().Error(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 	if notFound {
 		// 404: Not found
-		c.Logger().Debug(errors.New("todo not found"))
+		c.Logger().Debug("todo not found")
 		return echo.ErrNotFound
 	}
 
