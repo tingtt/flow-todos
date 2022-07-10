@@ -24,6 +24,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       SERVICE_URL_PROJECTS: ${SERVICE_URL_PROJECTS}
       SERVICE_URL_SPRINTS: ${SERVICE_URL_SPRINTS}
+    command: ${ARGS:-}
     depends_on:
       - db
     restart: unless-stopped
